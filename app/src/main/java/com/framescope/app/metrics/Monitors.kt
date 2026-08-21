@@ -149,11 +149,10 @@ class FpsMonitor @Inject constructor(
                             "FPS layer for $activePackage: '$activeLayer'",
                             tag = "FpsMonitor"
                         )
-                        if (layerReady) {
-                            shizukuManager.executeCommand(
-                                "dumpsys SurfaceFlinger --latency-clear ${shellQuote(activeLayer)}"
-                            )
-                        } else {
+                        // Do not clear SurfaceFlinger latency here. On several Android 8.1
+                        // vendor builds `--latency-clear` blocks until the bridge timeout;
+                        // the rolling timestamp buffer is filtered to the last second below.
+                        if (!layerReady) {
                             backend = FpsBackend.GFXINFO
                             com.framescope.app.utils.FrameScopeLog.i(
                                 "FPS using gfxinfo fallback for $activePackage",
@@ -161,12 +160,8 @@ class FpsMonitor @Inject constructor(
                             )
                             shizukuManager.executeCommand("dumpsys gfxinfo ${shellQuote(activePackage)} reset")
                         }
-                        // The latency/gfxinfo buffer was just cleared. Wait for a
-                        // complete sampling interval before reading it.
                         lastState = FpsState(0, 0)
                         emit(lastState)
-                        delay(SAMPLE_INTERVAL_MS)
-                        continue
                     } else if (!layerReady) {
                         lastState = FpsState(0, 0)
                         emit(lastState)
@@ -192,14 +187,11 @@ class FpsMonitor @Inject constructor(
                             shizukuManager.executeCommand("dumpsys gfxinfo ${shellQuote(activePackage)} reset")
                             lastState = FpsState(0, 0)
                         } else {
-                            lastState = calculateFps(presentTimes)
+                            // SurfaceFlinger keeps a rolling history. Filter it against
+                            // the app's monotonic clock so an idle page reports 0 new
+                            // frames instead of repeating an old FPS value.
+                            lastState = calculateRecentFps(presentTimes, System.nanoTime())
                         }
-                        // Start a fresh window for the next sample. This makes
-                        // a static page report 0 new frames instead of repeating
-                        // the last value forever.
-                        shizukuManager.executeCommand(
-                            "dumpsys SurfaceFlinger --latency-clear ${shellQuote(activeLayer)}"
-                        )
                         emit(lastState)
                     }
                 } catch (e: Exception) {
@@ -239,15 +231,6 @@ class FpsMonitor @Inject constructor(
         return FpsState(fps.coerceAtLeast(0), janky)
     }
 
-    private fun calculateFps(frameTimes: List<Long>): FpsState {
-        if (frameTimes.size < 2) return FpsState(0, 0)
-        val span = frameTimes.last() - frameTimes.first()
-        if (span <= 0L) return FpsState(0, 0)
-        val fps = (((frameTimes.size - 1) * 1_000_000_000.0) / span).roundToInt()
-        val janky = frameTimes.zipWithNext().count { (a, b) -> b - a > 25_000_000L }
-        return FpsState(fps.coerceAtLeast(0), janky)
-    }
-
     private fun parseGfxInfoFrameTimes(dump: String): List<Long> {
         var completedColumn = GFXINFO_DEFAULT_FRAME_COMPLETED_COLUMN
         val frameTimes = mutableListOf<Long>()
@@ -265,7 +248,7 @@ class FpsMonitor @Inject constructor(
 
             if (columns.firstOrNull()?.toIntOrNull() != null && columns.size > completedColumn) {
                 val rawTimestamp = columns[completedColumn].toLongOrNull() ?: return@forEach
-                if (rawTimestamp > 0L) {
+                if (rawTimestamp in 1 until Long.MAX_VALUE) {
                     frameTimes += normalizeFrameTimestamp(rawTimestamp)
                 }
             }

@@ -19,8 +19,10 @@ if ([string]::IsNullOrWhiteSpace($Serial)) {
     $Serial = ($deviceRows[0] -split "\s+")[0]
 }
 
+$cleanupCommand = 'pkill -f com.framescope.app.bridge.ShellBridgeMain >/dev/null 2>&1; rm -f /sdcard/Android/data/com.framescope.app/files/bridge/request_* /sdcard/Android/data/com.framescope.app/files/bridge/response_* /sdcard/Android/data/com.framescope.app/files/bridge/*.tmp'
 $remoteCommand = 'CLASSPATH=$(pm path com.framescope.app | cut -d: -f2); export CLASSPATH; app_process /system/bin com.framescope.app.bridge.ShellBridgeMain >/dev/null 2>&1 &'
 Write-Host "Starting FrameScope Bridge: $Serial"
+& $AdbPath -s $Serial shell $cleanupCommand
 & $AdbPath -s $Serial shell $remoteCommand
 if ($LASTEXITCODE -ne 0) {
     throw "Start failed. Confirm that FrameScope is installed and its package name is com.framescope.app."
