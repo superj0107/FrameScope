@@ -35,7 +35,7 @@ fun OptimizationSlidersSection(
         )
 
         SwipeToActivate(
-            text = "SWIPE TO BOOST MEMORY",
+            text = tr("SWIPE TO BOOST MEMORY"),
             icon = Icons.Default.Bolt,
             accentColor = MaterialTheme.colorScheme.primary,
             isBusy = isBoostingRam,
@@ -46,26 +46,26 @@ fun OptimizationSlidersSection(
         Spacer(modifier = Modifier.height(12.dp))
 
         SwipeToActivate(
-            text = "SWIPE TO CHECK PING",
+            text = tr("SWIPE TO CHECK PING"),
             icon = Icons.Default.SettingsInputAntenna,
             accentColor = Color(0xFF10B981),
             isBusy = isOptimizingNet,
             showResult = showPingResult,
-            busyText = "CHECKING…",
-            resultText = "CHECKED",
+            busyText = tr("CHECKING…"),
+            resultText = tr("CHECKED"),
             onActivated = onCheckPing
         )
 
         Spacer(modifier = Modifier.height(12.dp))
 
         SwipeToActivate(
-            text = "SWIPE TO RESET DEVICE DEFAULTS",
+            text = tr("SWIPE TO RESET DEVICE DEFAULTS"),
             icon = Icons.Default.RestoreFromTrash,
             accentColor = Color(0xFFF59E0B),
             isBusy = isResettingDefaults,
             showResult = showResetResult,
-            busyText = "RESETTING…",
-            resultText = "RESET DONE",
+            busyText = tr("RESETTING…"),
+            resultText = tr("RESET DONE"),
             onActivated = onResetDefaults
         )
 

@@ -137,7 +137,7 @@ internal fun OverlayPreviewCard(
                                     Spacer(modifier = Modifier.width((8 * textScale).dp))
                                     Text(tr(info.displayName), color = Color.Gray, fontSize = (10 * textScale).sp, fontFamily = fontFamily, modifier = Modifier.weight(1f))
                                     Text(
-                                        info.previewSampleValue,
+                                        tr(info.previewSampleValue),
                                         color = Color.White,
                                         fontFamily = fontFamily,
                                         style = MaterialTheme.typography.labelSmall.copy(fontSize = (12 * textScale).sp, fontWeight = FontWeight.Bold)
@@ -155,7 +155,7 @@ internal fun OverlayPreviewCard(
                                 val info = METRIC_MODULE_REGISTRY.getValue(module.id)
                                 if (selectedMode == "Minimal") {
                                     Text(
-                                        info.previewSampleValue,
+                                        tr(info.previewSampleValue),
                                         color = Color.White,
                                         fontFamily = fontFamily,
                                         style = MaterialTheme.typography.labelSmall.copy(fontSize = (14 * textScale).sp, fontWeight = FontWeight.Bold)
@@ -164,7 +164,7 @@ internal fun OverlayPreviewCard(
                                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                         Text(module.id.storageKey.uppercase(), color = Color.Gray, fontFamily = fontFamily, fontSize = (10 * textScale).sp, fontWeight = FontWeight.Bold)
                                         Text(
-                                            info.previewSampleValue,
+                                            tr(info.previewSampleValue),
                                             color = if (index == 0) accentColor else Color.White,
                                             fontFamily = fontFamily,
                                             style = MaterialTheme.typography.labelSmall.copy(fontSize = (16 * textScale).sp, fontWeight = FontWeight.Bold)
@@ -232,7 +232,7 @@ internal fun ModuleRow(
                     .background(if (module.enabled) accentColor.copy(0.1f) else MaterialTheme.colorScheme.background)
                     .padding(horizontal = 6.dp, vertical = 2.dp)
             ) {
-                Text(info.previewSampleValue, color = if (module.enabled) accentColor else Color.Gray, style = MaterialTheme.typography.labelSmall)
+                                Text(tr(info.previewSampleValue), color = if (module.enabled) accentColor else Color.Gray, style = MaterialTheme.typography.labelSmall)
             }
         }
         Switch(

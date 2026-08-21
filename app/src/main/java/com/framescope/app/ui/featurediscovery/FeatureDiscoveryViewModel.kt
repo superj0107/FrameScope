@@ -3,6 +3,7 @@ package com.framescope.app.ui.featurediscovery
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import com.framescope.app.utils.FrameScopeLog
+import com.framescope.app.i18n.trStatic
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -41,8 +42,8 @@ class FeatureDiscoveryViewModel @Inject constructor(
         _guideState.value = DiscoveryGuideState.Hidden
         _completionEvent.value = DiscoveryCompletionEvent(
             screenId = state.screenId,
-            message = FeatureDiscoveryCatalog.completionMessage(state.screenId),
-            actionLabel = "Got it"
+            message = trStatic(FeatureDiscoveryCatalog.completionMessage(state.screenId)),
+            actionLabel = trStatic("Got it")
         )
         FrameScopeLog.i("Discovery completed for ${state.screenId.name}", tag = TAG)
     }
@@ -53,7 +54,7 @@ class FeatureDiscoveryViewModel @Inject constructor(
         _guideState.value = DiscoveryGuideState.Hidden
         _completionEvent.value = DiscoveryCompletionEvent(
             screenId = state?.screenId ?: DiscoveryScreenId.PERMISSIONS,
-            message = "Setup guide dismissed"
+            message = trStatic("Setup guide dismissed")
         )
         FrameScopeLog.i("Discovery globally dismissed by user", tag = TAG)
     }

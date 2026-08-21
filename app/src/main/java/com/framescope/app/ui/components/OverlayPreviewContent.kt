@@ -46,7 +46,7 @@ fun OverlayPreviewContent(
             val displayValue = if (metricsState != null) {
                 metricValueFor(id, metricsState)
             } else {
-                info.previewSampleValue
+                tr(info.previewSampleValue)
             }
             Triple(id.storageKey, info.overlayShortLabel, displayValue) to info.icon
         }
@@ -93,7 +93,7 @@ fun OverlayPreviewContent(
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(icon, contentDescription = null, tint = accentColor, modifier = Modifier.size((16 * textScale).dp))
                         Spacer(modifier = Modifier.width((8 * textScale).dp))
-                        Text(info.second, color = Color.Gray, fontSize = (10 * textScale).sp, fontFamily = fontFamily, modifier = Modifier.weight(1f))
+                        Text(tr(info.second), color = Color.Gray, fontSize = (10 * textScale).sp, fontFamily = fontFamily, modifier = Modifier.weight(1f))
                         Text(info.third, color = textValueColor, fontSize = (12 * textScale).sp, fontFamily = fontFamily, style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold))
                     }
                 }
@@ -109,7 +109,7 @@ fun OverlayPreviewContent(
                         Text(info.third, color = textValueColor, fontFamily = fontFamily, fontSize = (14 * textScale).sp, style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold))
                     } else {
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Text(info.second, color = Color.Gray, fontFamily = fontFamily, fontSize = (10 * textScale).sp, fontWeight = FontWeight.Bold)
+                            Text(tr(info.second), color = Color.Gray, fontFamily = fontFamily, fontSize = (10 * textScale).sp, fontWeight = FontWeight.Bold)
                             Text(info.third, color = textValueColor, fontFamily = fontFamily, fontSize = (16 * textScale).sp, style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold))
                         }
                     }

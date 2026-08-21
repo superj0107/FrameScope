@@ -67,7 +67,7 @@ fun UpdateDialog(
                         )
                         Spacer(modifier = Modifier.width(10.dp))
                         Text(
-                            text = "New Update Ready",
+                            text = tr("New Update Ready"),
                             fontSize = 18.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color.White
@@ -91,7 +91,7 @@ fun UpdateDialog(
                 Spacer(modifier = Modifier.height(14.dp))
 
                 Text(
-                    text = "Release Notes",
+                    text = tr("Release Notes"),
                     fontSize = 12.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = Color.Gray
@@ -122,7 +122,7 @@ fun UpdateDialog(
                                 horizontalArrangement = Arrangement.SpaceBetween
                             ) {
                                 Text(
-                                    text = "Downloading APK...",
+                                    text = tr("Downloading APK..."),
                                     fontSize = 12.sp,
                                     color = Color.Gray
                                 )
@@ -157,7 +157,7 @@ fun UpdateDialog(
                                 color = MaterialTheme.colorScheme.primary
                             )
                             Text(
-                                text = "Verifying APK integrity...",
+                                text = tr("Verifying APK integrity..."),
                                 fontSize = 12.sp,
                                 color = Color.Gray
                             )
@@ -166,7 +166,7 @@ fun UpdateDialog(
                     }
                     is DownloadState.Failed -> {
                         Text(
-                            text = "Download failed: ${downloadState.error}",
+                            text = "${tr("Download failed")}: ${downloadState.error}",
                             fontSize = 12.sp,
                             color = Color(0xFFEF4444)
                         )

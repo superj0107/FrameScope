@@ -59,7 +59,7 @@ fun GraphLegend(series: List<GraphSeries>, modifier: Modifier = Modifier) {
                         .background(entry.color)
                 )
                 Spacer(modifier = Modifier.width(6.dp))
-                Text(entry.label, color = Color.Gray, fontSize = 11.sp, fontWeight = FontWeight.Medium)
+                Text(tr(entry.label), color = Color.Gray, fontSize = 11.sp, fontWeight = FontWeight.Medium)
             }
         }
     }
@@ -265,7 +265,7 @@ fun ModernInteractiveGraph(
                                     Box(modifier = Modifier.size(6.dp).clip(CircleShape).background(entry.color))
                                     Spacer(modifier = Modifier.width(6.dp))
                                     Text(
-                                        text = "${entry.label}: ${String.format(Locale.US, "%.1f", v)}${entry.unitSuffix}",
+                                        text = "${tr(entry.label)}: ${String.format(Locale.US, "%.1f", v)}${entry.unitSuffix}",
                                         color = Color.White,
                                         fontSize = 11.sp,
                                         fontWeight = FontWeight.Bold

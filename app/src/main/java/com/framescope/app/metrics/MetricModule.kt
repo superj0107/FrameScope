@@ -8,6 +8,7 @@ import androidx.compose.material.icons.filled.Memory
 import androidx.compose.material.icons.filled.NetworkCheck
 import androidx.compose.material.icons.filled.Speed
 import androidx.compose.ui.graphics.vector.ImageVector
+import com.framescope.app.i18n.trStatic
 
 /**
  * Every metric the overlay can display. [storageKey] is the identifier persisted to
@@ -122,17 +123,17 @@ fun metricValueFor(id: MetricModuleId, metricsState: MetricsState): String = whe
     MetricModuleId.PING -> when (metricsState.pingReadStatus) {
         MetricReadStatus.Ok -> "${metricsState.pingMs} ms"
         MetricReadStatus.Loading -> "-- ms"
-        else -> "timeout"
+        else -> trStatic("timeout")
     }
 }
 
 /** Short label for the overlay's compact/minimal display — full names are used in
  *  the Performance/detail screens where there's room to show "MODERATE" in full. */
 fun thermalStatusShortLabel(status: Int): String = when (status) {
-    0, 1 -> "OK"
-    2 -> "WARM"
-    3 -> "HOT"
-    4 -> "CRIT"
+    0, 1 -> trStatic("OK")
+    2 -> trStatic("WARM")
+    3 -> trStatic("HOT")
+    4 -> trStatic("CRIT")
     5, 6 -> "!!!"
     else -> "?"
 }

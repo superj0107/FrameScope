@@ -1,6 +1,7 @@
 package com.framescope.app.ui.screens.thermal
 
 import com.framescope.app.i18n.tr
+import com.framescope.app.i18n.trStatic
 
 import android.content.ClipData
 import android.content.ClipboardManager
@@ -206,18 +207,18 @@ fun ThermalDiagnosticsScreen(
                     ) {
                         Column(modifier = Modifier.padding(16.dp)) {
                             Text(
-                                text = if (!isShizukuAvailable) "Shizuku Service Not Running" else "Shizuku Authorization Required",
+                                text = tr(if (!isShizukuAvailable) "Shizuku Service Not Running" else "Shizuku Authorization Required"),
                                 color = MaterialTheme.colorScheme.error,
                                 fontWeight = FontWeight.Bold,
                                 style = MaterialTheme.typography.titleMedium
                             )
                             Spacer(modifier = Modifier.height(4.dp))
                             Text(
-                                text = if (!isShizukuAvailable) {
+                                text = tr(if (!isShizukuAvailable) {
                                     "Start Shizuku via wireless debugging or adb to view active CPU/GPU thermal sensors and top processes."
                                 } else {
                                     "Authorize FrameScope in the Shizuku app to read system thermal stats and CPU dumps."
-                                },
+                                }),
                                 color = Color.LightGray,
                                 style = MaterialTheme.typography.bodySmall
                             )
@@ -227,7 +228,7 @@ fun ThermalDiagnosticsScreen(
                                     onClick = {
                                         val intent = context.packageManager.getLaunchIntentForPackage("moe.shizuku.privileged.api")
                                         if (intent != null) context.startActivity(intent)
-                                        else Toast.makeText(context, "Shizuku app not found", Toast.LENGTH_SHORT).show()
+                                        else Toast.makeText(context, trStatic("Shizuku app not found"), Toast.LENGTH_SHORT).show()
                                     },
                                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error.copy(alpha = 0.2f), contentColor = Color.White),
                                     modifier = Modifier.height(36.dp),
@@ -267,14 +268,14 @@ fun ThermalDiagnosticsScreen(
                     Spacer(modifier = Modifier.width(12.dp))
                     Column {
                         Text(
-                            text = "System Thermal State: $statusText",
+                            text = "${tr("System Thermal State: ")}$statusText",
                             color = Color.White,
                             fontWeight = FontWeight.Bold,
                             fontSize = 15.sp
                         )
                         Spacer(modifier = Modifier.height(2.dp))
                         Text(
-                            text = "Thermal pressure: $pressureText · Live · Thermal HAL",
+                            text = "${tr("Thermal pressure: ")}$pressureText${tr(" · Live · Thermal HAL")}",
                             color = Color.LightGray,
                             style = MaterialTheme.typography.bodySmall
                         )
@@ -379,7 +380,7 @@ fun ThermalDiagnosticsScreen(
                         modifier = Modifier.weight(1f).fillMaxHeight()
                     )
                     val jankRate = String.format(Locale.US, "%.1f/s", metricsState.jankyFrames / 3.0f)
-                    val jankLabel = if (metricsState.jankyFrames == 0) "Smooth" else if (metricsState.jankyFrames < 5) "Minor" else "Stutter"
+                    val jankLabel = tr(if (metricsState.jankyFrames == 0) "Smooth" else if (metricsState.jankyFrames < 5) "Minor" else "Stutter")
                     ReadingCard(
                         label = "JANK RATE",
                         value = "$jankRate ($jankLabel)",
@@ -404,7 +405,7 @@ fun ThermalDiagnosticsScreen(
                 // 4. Interactive Graph Section with Exposed Dropdowns
                 Text(tr("Performance & Thermal Timeline"), style = MaterialTheme.typography.titleSmall, color = Color.White, fontWeight = FontWeight.Bold)
                 Text(
-                    "Select timeframe and metrics, then drag across the canvas to scrub telemetry.",
+                    tr("Select timeframe and metrics, then drag across the canvas to scrub telemetry."),
                     style = MaterialTheme.typography.bodySmall,
                     color = Color.Gray
                 )
@@ -423,7 +424,7 @@ fun ThermalDiagnosticsScreen(
                         modifier = Modifier.weight(1f)
                     ) {
                         OutlinedTextField(
-                            value = selectedWindow.label,
+                            value = tr(selectedWindow.label),
                             onValueChange = {},
                             readOnly = true,
                             label = { Text(tr("Timeframe"), fontSize = 11.sp) },
@@ -440,7 +441,7 @@ fun ThermalDiagnosticsScreen(
                         ) {
                             TimeWindow.values().forEach { window ->
                                 DropdownMenuItem(
-                                    text = { Text(window.label, fontSize = 13.sp, color = Color.White) },
+                                    text = { Text(tr(window.label), fontSize = 13.sp, color = Color.White) },
                                     onClick = {
                                         selectedWindow = window
                                         viewModel.setThermalTimeWindow(window)
@@ -458,7 +459,7 @@ fun ThermalDiagnosticsScreen(
                         modifier = Modifier.weight(1.3f)
                     ) {
                         OutlinedTextField(
-                            value = selectedGraphMode.label,
+                            value = tr(selectedGraphMode.label),
                             onValueChange = {},
                             readOnly = true,
                             label = { Text(tr("Graph Mode"), fontSize = 11.sp) },
@@ -476,7 +477,7 @@ fun ThermalDiagnosticsScreen(
                         ) {
                             GraphMetricMode.values().forEach { mode ->
                                 DropdownMenuItem(
-                                    text = { Text(mode.label, fontSize = 13.sp, color = Color.White) },
+                                    text = { Text(tr(mode.label), fontSize = 13.sp, color = Color.White) },
                                     onClick = {
                                         selectedGraphMode = mode
                                         viewModel.setThermalGraphMode(mode)
@@ -535,7 +536,7 @@ fun ThermalDiagnosticsScreen(
                 // 6. Action Buttons Layout with Restored Green "Ready to Export" Banner
                 Text(tr("Session Recording & Export"), style = MaterialTheme.typography.titleSmall, color = Color.White, fontWeight = FontWeight.Bold)
                 Text(
-                    "Capture gaming telemetry logs or copy a Markdown report for GitHub issues.",
+                    tr("Capture gaming telemetry logs or copy a Markdown report for GitHub issues."),
                     style = MaterialTheme.typography.bodySmall,
                     color = Color.Gray
                 )
@@ -593,8 +594,8 @@ fun ThermalDiagnosticsScreen(
                     OutlinedButton(
                         onClick = {
                             viewModel.exportAndShare(
-                                onReady = { intent -> context.startActivity(Intent.createChooser(intent, "Share session log")) },
-                                onEmpty = { Toast.makeText(context, "Nothing recorded yet — start a session first", Toast.LENGTH_SHORT).show() }
+                                onReady = { intent -> context.startActivity(Intent.createChooser(intent, trStatic("Share session log"))) },
+                                onEmpty = { Toast.makeText(context, trStatic("Nothing recorded yet — start a session first"), Toast.LENGTH_SHORT).show() }
                             )
                         },
                         modifier = Modifier.weight(1f).height(46.dp),

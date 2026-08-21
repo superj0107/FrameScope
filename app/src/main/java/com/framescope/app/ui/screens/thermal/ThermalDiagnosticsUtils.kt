@@ -14,6 +14,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import com.framescope.app.metrics.MetricReadStatus
 import com.framescope.app.metrics.MetricsEngine
 import com.framescope.app.metrics.MetricsState
+import com.framescope.app.i18n.trStatic
 import com.framescope.app.ui.theme.Amber
 import com.framescope.app.ui.theme.MutedBlue
 import com.framescope.app.ui.theme.MutedGreen
@@ -24,47 +25,47 @@ import java.util.Locale
 /** Single source of truth for human-readable thermal status text across UI and ViewModels. */
 fun getThermalStatusLabel(status: Int): String {
     return when (status) {
-        0 -> "Normal"
-        1 -> "Light Throttling"
-        2 -> "Moderate Throttling"
-        3 -> "Severe Throttling"
-        4 -> "Critical Throttling"
-        5 -> "Emergency Mitigation"
-        6 -> "System Shutdown"
-        else -> "Level $status"
+        0 -> trStatic("Normal")
+        1 -> trStatic("Light Throttling")
+        2 -> trStatic("Moderate Throttling")
+        3 -> trStatic("Severe Throttling")
+        4 -> trStatic("Critical Throttling")
+        5 -> trStatic("Emergency Mitigation")
+        6 -> trStatic("System Shutdown")
+        else -> "${trStatic("Level")} $status"
     }
 }
 
 /** Pure helper to evaluate thermal pressure level based on status code and delta thresholds. */
 fun computeThermalPressure(status: Int, cpuDelta: Float, skinDelta: Float): String {
     return when (status) {
-        0 -> if (cpuDelta > 1.5f || skinDelta > 1.0f) "Rising" else "Stable"
-        1, 2 -> "Elevated"
-        else -> "Critical"
+        0 -> if (cpuDelta > 1.5f || skinDelta > 1.0f) trStatic("Rising") else trStatic("Stable")
+        1, 2 -> trStatic("Elevated")
+        else -> trStatic("Critical")
     }
 }
 
 fun getThermalDisplayValue(value: Float, present: Boolean, readStatus: MetricReadStatus): String {
     return when (readStatus) {
-        MetricReadStatus.NoShizuku -> "Needs Shizuku"
-        MetricReadStatus.EmptyOutput -> "Not Supported"
-        MetricReadStatus.ParseFailed -> "Parse Failed"
-        MetricReadStatus.Loading -> "Waiting..."
-        else -> if (present) String.format(Locale.US, "%.1f°C", value) else "Not Supported"
+        MetricReadStatus.NoShizuku -> trStatic("Needs Shizuku")
+        MetricReadStatus.EmptyOutput -> trStatic("Not Supported")
+        MetricReadStatus.ParseFailed -> trStatic("Parse Failed")
+        MetricReadStatus.Loading -> trStatic("Waiting...")
+        else -> if (present) String.format(Locale.US, "%.1f°C", value) else trStatic("Not Supported")
     }
 }
 
 fun getBatteryDisplayValue(tempC: Float): String {
-    return if (tempC <= 0f) "Unavailable" else String.format(Locale.US, "%.1f°C", tempC)
+    return if (tempC <= 0f) trStatic("Unavailable") else String.format(Locale.US, "%.1f°C", tempC)
 }
 
 fun getTopProcessDisplayValue(name: String?, percent: Float, readStatus: MetricReadStatus): String {
     return when (readStatus) {
-        MetricReadStatus.NoShizuku -> "Needs Shizuku"
-        MetricReadStatus.EmptyOutput -> "Unavailable"
-        MetricReadStatus.ParseFailed -> "Parse Failed"
-        MetricReadStatus.Loading -> "Waiting..."
-        MetricReadStatus.NoData -> "No process data"
+        MetricReadStatus.NoShizuku -> trStatic("Needs Shizuku")
+        MetricReadStatus.EmptyOutput -> trStatic("Unavailable")
+        MetricReadStatus.ParseFailed -> trStatic("Parse Failed")
+        MetricReadStatus.Loading -> trStatic("Waiting...")
+        MetricReadStatus.NoData -> trStatic("No process data")
         MetricReadStatus.Ok -> {
             if (name != null) {
                 "$name (${String.format(Locale.US, "%.0f", percent)}%)"
@@ -82,8 +83,8 @@ fun evaluateLikelyCause(
 ): DiagnosticCause {
     if (snapshots.size < 5) {
         return DiagnosticCause(
-            title = "Monitoring Performance",
-            description = "Gathering telemetry samples to evaluate frame drop root cause...",
+            title = trStatic("Monitoring Performance"),
+            description = trStatic("Gathering telemetry samples to evaluate frame drop root cause..."),
             color = Color(0xFF60A5FA)
         )
     }
@@ -101,23 +102,23 @@ fun evaluateLikelyCause(
 
     return when {
         isFpsDropped && isHot -> DiagnosticCause(
-            title = "Likely Thermal Pressure",
-            description = "FPS dropped while CPU/Skin temperature elevated to ${String.format(Locale.US, "%.1f°C", maxCpuTemp)}.",
+            title = trStatic("Likely Thermal Pressure"),
+            description = String.format(Locale.US, trStatic("FPS dropped while CPU/Skin temperature elevated to %s."), String.format(Locale.US, "%.1f°C", maxCpuTemp)),
             color = Color(0xFFEF4444)
         )
         isFpsDropped && isProcessBusy -> DiagnosticCause(
-            title = "Likely Background CPU Contention",
-            description = "FPS dropped while '${currentState.topProcessName}' consumed ${String.format(Locale.US, "%.0f%%", topCpu)} CPU.",
+            title = trStatic("Likely Background CPU Contention"),
+            description = String.format(Locale.US, trStatic("FPS dropped while '%s' consumed %s CPU."), currentState.topProcessName, String.format(Locale.US, "%.0f%%", topCpu)),
             color = Color(0xFFF59E0B)
         )
         currentState.jankyFrames >= 6 -> DiagnosticCause(
-            title = "Likely Frame Pacing Issue",
-            description = "Average FPS is steady, but display compositor detected sudden jank frame spikes.",
+            title = trStatic("Likely Frame Pacing Issue"),
+            description = trStatic("Average FPS is steady, but display compositor detected sudden jank frame spikes."),
             color = Color(0xFFFB7185)
         )
         else -> DiagnosticCause(
-            title = "No Thermal Correlation Detected",
-            description = "Thermals and background CPU usage are within normal limits.",
+            title = trStatic("No Thermal Correlation Detected"),
+            description = trStatic("Thermals and background CPU usage are within normal limits."),
             color = Color(0xFF34D399)
         )
     }
@@ -154,15 +155,15 @@ fun seriesForMode(
 }
 
 fun formatSecondsAgo(secondsAgo: Int): String {
-    if (secondsAgo <= 0) return "now"
+    if (secondsAgo <= 0) return trStatic("now")
     val hours = secondsAgo / 3600
     val minutes = (secondsAgo % 3600) / 60
     val seconds = secondsAgo % 60
     return when {
-        hours > 0 && minutes > 0 -> "${hours}h ${minutes}m"
-        hours > 0 -> "${hours}h"
-        minutes > 0 -> "${minutes}m"
-        else -> "${seconds}s"
+        hours > 0 && minutes > 0 -> "${hours}${trStatic("h")} ${minutes}${trStatic("m")}"
+        hours > 0 -> "${hours}${trStatic("h")}"
+        minutes > 0 -> "${minutes}${trStatic("m")}"
+        else -> "${seconds}${trStatic("s")}"
     }
 }
 

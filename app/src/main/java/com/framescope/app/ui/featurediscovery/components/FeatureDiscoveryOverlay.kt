@@ -176,7 +176,7 @@ private fun SetupGuideModal(
                     ) {
                         Column(modifier = Modifier.weight(1f)) {
                             Text(
-                                text = guide.title,
+                                text = tr(guide.title),
                                 color = Color.White,
                                 fontSize = 18.sp,
                                 fontWeight = FontWeight.Bold,
@@ -185,7 +185,7 @@ private fun SetupGuideModal(
                             if (guide.subtitle.isNotEmpty()) {
                                 Spacer(modifier = Modifier.height(4.dp))
                                 Text(
-                                    text = guide.subtitle,
+                                    text = tr(guide.subtitle),
                                     color = Color.White.copy(alpha = 0.7f),
                                     fontSize = 13.sp,
                                     lineHeight = 17.sp
@@ -240,7 +240,7 @@ private fun SetupGuideModal(
                     // Steps List
                     if (guide.steps.isNotEmpty()) {
                         guide.steps.forEachIndexed { index, step ->
-                            SetupStepRow(index = index + 1, text = step)
+                            SetupStepRow(index = index + 1, text = tr(step))
                             if (index < guide.steps.size - 1) {
                                 Spacer(modifier = Modifier.height(8.dp))
                             }
@@ -265,7 +265,7 @@ private fun SetupGuideModal(
                             )
                         ) {
                             Text(
-                                text = action.label,
+                                text = tr(action.label),
                                 fontSize = 15.sp,
                                 fontWeight = FontWeight.SemiBold
                             )

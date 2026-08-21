@@ -349,7 +349,7 @@ fun AboutScreen(
                                                     updateInfoState = info
                                                     statusMessage = "${com.framescope.app.i18n.trStatic("Update available")}: v${info.versionName}"
                                                 } else {
-                                                    statusMessage = com.framescope.app.i18n.trStatic("FrameScope is up to date (v$versionName)")
+                                                    statusMessage = "${com.framescope.app.i18n.trStatic("FrameScope is up to date")} (v$versionName)"
                                                 }
                                             }.onFailure { err ->
                                                 statusMessage = err.localizedMessage ?: com.framescope.app.i18n.trStatic("Check failed")

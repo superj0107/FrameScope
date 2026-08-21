@@ -71,7 +71,7 @@ fun ReadingCard(
                             Icon(iconForLabel(label), contentDescription = null, tint = iconColorForLabel(label), modifier = Modifier.size(16.dp))
                         }
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text(label, color = Color.Gray, style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold)
+                        Text(tr(label), color = Color.Gray, style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold)
                     }
 
                     if (delta30s != 0f) {
@@ -108,7 +108,7 @@ fun ReadingCard(
                     ) {
                         if (avgVal > 0f) {
                             Text(
-                                text = "Avg: ${String.format(Locale.US, "%.1f°C", avgVal)}",
+                                text = "${tr("Avg: ")}${String.format(Locale.US, "%.1f°C", avgVal)}",
                                 color = Color.White.copy(alpha = 0.65f),
                                 fontSize = 10.sp,
                                 fontWeight = FontWeight.Medium
@@ -116,7 +116,7 @@ fun ReadingCard(
                         }
                         if (peakVal > 0f) {
                             Text(
-                                text = "Peak: ${String.format(Locale.US, "%.1f°C", peakVal)}",
+                                text = "${tr("Peak: ")}${String.format(Locale.US, "%.1f°C", peakVal)}",
                                 color = Color.Gray,
                                 fontSize = 10.sp
                             )
@@ -182,7 +182,7 @@ fun TopProcessCard(
                     ) {
                         Icon(
                             imageVector = if (isExpanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
-                            contentDescription = if (isExpanded) "Collapse processes" else "Expand processes",
+                            contentDescription = tr(if (isExpanded) "Collapse processes" else "Expand processes"),
                             tint = Color.Gray
                         )
                     }
@@ -206,7 +206,7 @@ fun TopProcessCard(
                             color = Color.White.copy(alpha = 0.08f)
                         )
                         Text(
-                            text = "TOP CPU CONSUMERS",
+                            text = tr("TOP CPU CONSUMERS"),
                             fontSize = 10.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color.Gray,
@@ -214,7 +214,7 @@ fun TopProcessCard(
                         )
                         if (topProcesses.isEmpty()) {
                             Text(
-                                text = "No process telemetry available",
+                                text = tr("No process telemetry available"),
                                 fontSize = 11.sp,
                                 color = Color.Gray,
                                 modifier = Modifier.padding(vertical = 4.dp)
@@ -259,7 +259,7 @@ fun SensorDetailRow(label: String, source: String, active: Boolean) {
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(label, color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.Medium)
+        Text(tr(label), color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.Medium)
         Row(verticalAlignment = Alignment.CenterVertically) {
             Box(
                 modifier = Modifier
@@ -268,7 +268,7 @@ fun SensorDetailRow(label: String, source: String, active: Boolean) {
                     .background(if (active) Color(0xFF34D399) else Color.Gray)
             )
             Spacer(modifier = Modifier.width(6.dp))
-            Text(source, color = if (active) Color.LightGray else Color.Gray, fontSize = 11.sp)
+            Text(tr(source), color = if (active) Color.LightGray else Color.Gray, fontSize = 11.sp)
         }
     }
 }

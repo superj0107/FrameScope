@@ -53,7 +53,7 @@ fun SignatureMismatchDialog(
                     )
                     Spacer(modifier = Modifier.width(10.dp))
                     Text(
-                        text = "Signature Conflict",
+                        text = tr("Signature Conflict"),
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color.White
@@ -63,7 +63,7 @@ fun SignatureMismatchDialog(
                 Spacer(modifier = Modifier.height(14.dp))
 
                 Text(
-                    text = "Explanation & Next Steps",
+                    text = tr("Explanation & Next Steps"),
                     fontSize = 12.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = Color.Gray
@@ -81,15 +81,13 @@ fun SignatureMismatchDialog(
                 ) {
                     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                         Text(
-                            text = errorMessage.ifBlank {
-                                "You are running a Debug build of FrameScope. Official updates are signed with our Production certificate."
-                            },
+                            text = if (errorMessage.isBlank()) tr("You are running a Debug build of FrameScope. Official updates are signed with our Production certificate.") else errorMessage,
                             fontSize = 12.sp,
                             color = Color.White.copy(0.9f),
                             lineHeight = 17.sp
                         )
                         Text(
-                            text = "Android security requires a one-time uninstall of the Debug build. Tapping below will save the Release APK to your Downloads folder and trigger uninstall.",
+                            text = tr("Android security requires a one-time uninstall of the Debug build. Tapping below will save the Release APK to your Downloads folder and trigger uninstall."),
                             fontSize = 12.sp,
                             color = warningColor.copy(0.9f),
                             lineHeight = 17.sp,
