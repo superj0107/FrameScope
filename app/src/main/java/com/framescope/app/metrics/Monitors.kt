@@ -77,14 +77,22 @@ class FpsMonitor @Inject constructor(
                     val packageMatch = FOREGROUND_PACKAGE_REGEX.find(windowDump)
                     val packageName = packageMatch?.groupValues?.get(1).orEmpty()
                     val layerDump = shizukuManager.executeCommand("dumpsys SurfaceFlinger --list")
-                    val layer = layerDump.lineSequence()
+                    val layerCandidates = layerDump.lineSequence()
                         .map { it.trim() }
-                        .firstOrNull {
-                            it.contains("$packageName/") &&
-                                    !it.contains("animation", ignoreCase = true) &&
-                                    !it.contains("Wallpaper", ignoreCase = true) &&
-                                    !it.contains("StatusBar", ignoreCase = true)
+                        .filter { it.contains("$packageName/") }
+                        .filterNot { line ->
+                            NON_RENDERING_LAYER_MARKERS.any { marker ->
+                                line.contains(marker, ignoreCase = true)
+                            }
                         }
+                        .toList()
+                    // SurfaceFlinger also exposes helper layers such as
+                    // ActivityRecordInputSink for the foreground window. Those
+                    // layers do not contain presented frames, so prefer a real
+                    // application surface and never select the helper layer.
+                    val layer = layerCandidates.firstOrNull {
+                        it.contains("$packageName/$packageName.")
+                    } ?: layerCandidates.firstOrNull()
 
                     if (packageName != activePackage || layer != activeLayer) {
                         activePackage = packageName
@@ -95,6 +103,12 @@ class FpsMonitor @Inject constructor(
                                 "dumpsys SurfaceFlinger --latency-clear '$activeLayer'"
                             )
                         }
+                        // The latency buffer was just cleared. Wait for a
+                        // complete sampling interval before reading it so the
+                        // result cannot come from an old/stale frame history.
+                        emit(FpsState(0, 0))
+                        delay(SAMPLE_INTERVAL_MS)
+                        continue
                     }
 
                     if (!layerReady) {
@@ -107,17 +121,24 @@ class FpsMonitor @Inject constructor(
                             .mapNotNull { it.groupValues[1].toLongOrNull() }
                             .filter { it > 0L }
                             .toList()
-                        val recent = presentTimes.filter { it >= (presentTimes.lastOrNull() ?: 0L) - 2_000_000_000L }
-                        if (recent.size < 2) {
+                        if (presentTimes.size < 2) {
                             emit(FpsState(0, 0))
                         } else {
-                            val span = recent.last() - recent.first()
+                            val span = presentTimes.last() - presentTimes.first()
                             val fps = if (span > 0L) {
-                                (((recent.size - 1) * 1_000_000_000.0) / span).roundToInt()
+                                (((presentTimes.size - 1) * 1_000_000_000.0) / span).roundToInt()
                             } else 0
-                            val janky = recent.zipWithNext().count { (a, b) -> b - a > 25_000_000L }
-                            emit(FpsState(fps.coerceIn(0, 60), janky))
+                            val janky = presentTimes.zipWithNext().count { (a, b) -> b - a > 25_000_000L }
+                            // Do not cap the result at 60. The panel and the
+                            // compositor may legitimately report 90/120 FPS.
+                            emit(FpsState(fps.coerceAtLeast(0), janky))
                         }
+                        // Start a fresh window for the next sample. This makes
+                        // a static page report 0 new frames instead of repeating
+                        // the last value forever.
+                        shizukuManager.executeCommand(
+                            "dumpsys SurfaceFlinger --latency-clear '$activeLayer'"
+                        )
                     }
                 } catch (e: Exception) {
                     emit(FpsState(0, 0))
@@ -128,13 +149,29 @@ class FpsMonitor @Inject constructor(
                 layerReady = false
                 emit(FpsState(0, 0))
             }
-            delay(1000)
+            delay(SAMPLE_INTERVAL_MS)
         }
     }
 
     companion object {
+        private const val SAMPLE_INTERVAL_MS = 500L
         private val FOREGROUND_PACKAGE_REGEX = Regex("(?:mFocusedApp|mCurrentFocus)=.*?\\bu\\d+\\s+([A-Za-z0-9._]+?)/")
-        private val PRESENT_TIME_REGEX = Regex("^\\s*\\d+\\s+\\d+\\s+(\\d+)\\s*$", RegexOption.MULTILINE)
+        // SurfaceFlinger latency rows are:
+        // desired-present-time, actual-present-time, frame-ready-time.
+        // FPS must use actual-present-time (the second column).
+        private val PRESENT_TIME_REGEX = Regex("^\\s*\\d+\\s+(\\d+)\\s+\\d+\\s*$", RegexOption.MULTILINE)
+        private val NON_RENDERING_LAYER_MARKERS = listOf(
+            "ActivityRecord",
+            "InputSink",
+            "Wallpaper",
+            "StatusBar",
+            "NavigationBar",
+            "Insets",
+            "animation",
+            "Leash",
+            "Screenshot",
+            "ColorFade"
+        )
     }
 }
 
