@@ -9,6 +9,7 @@ import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileOutputStream
 import java.nio.charset.StandardCharsets
+import java.util.concurrent.atomic.AtomicLong
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -30,7 +31,7 @@ class FrameScopeBridgeClient @Inject constructor(
         context.getExternalFilesDir("bridge")
             ?: File("/sdcard/Android/data/com.framescope.app/files/bridge")
     ).apply { mkdirs() }
-    private val requestLock = Any()
+    private val requestSequence = AtomicLong(0L)
 
     suspend fun isAvailable(): Boolean = withContext(Dispatchers.IO) {
         val response = request("PING")
@@ -62,40 +63,64 @@ class FrameScopeBridgeClient @Inject constructor(
     suspend fun getThermalTemperatures(): String = executeCommand("dumpsys thermalservice")
 
     private fun request(request: String): String? {
-        synchronized(requestLock) {
-            val requestId = "${System.currentTimeMillis()}_${android.os.Process.myPid()}_${request.hashCode().toUInt()}"
-            val requestFile = File(mailboxDirectory, "request_$requestId")
-            val temporaryRequestFile = File(mailboxDirectory, "${requestFile.name}.tmp")
-            val responseFile = File(mailboxDirectory, "response_$requestId")
-            return try {
-                // Write to a temporary file first. The shell bridge scans the
-                // directory continuously, so it must never observe a partial
-                // request while the app is still writing the command.
-                FileOutputStream(temporaryRequestFile).use { stream ->
-                    stream.write(request.toByteArray(StandardCharsets.UTF_8))
-                    stream.flush()
-                }
-                if (!temporaryRequestFile.renameTo(requestFile)) return null
-                val deadline = System.currentTimeMillis() + REQUEST_TIMEOUT_MS
-                while (System.currentTimeMillis() < deadline) {
-                    if (responseFile.exists()) {
-                        return responseFile.readText(StandardCharsets.UTF_8).trimEnd()
-                    }
-                    Thread.sleep(MAILBOX_POLL_INTERVAL_MS)
-                }
-                null
-            } catch (e: Exception) {
-                com.framescope.app.utils.FrameScopeLog.w(
-                    "Bridge mailbox request failed: ${e.javaClass.simpleName}: ${e.message.orEmpty()}",
-                    tag = "FrameScopeBridge"
-                )
-                null
-            } finally {
-                requestFile.delete()
-                temporaryRequestFile.delete()
-                responseFile.delete()
+        val requestId = "${System.currentTimeMillis()}_${android.os.Process.myPid()}_${requestSequence.incrementAndGet()}"
+        val requestFile = File(mailboxDirectory, "request_$requestId")
+        val temporaryRequestFile = File(mailboxDirectory, "${requestFile.name}.tmp")
+        val responseFile = File(mailboxDirectory, "response_$requestId")
+        val temporaryResponseFile = File(mailboxDirectory, "${responseFile.name}.tmp")
+        return try {
+            // Write to a temporary file first. The shell bridge scans the
+            // directory continuously, so it must never observe a partial
+            // request while the app is still writing the command.
+            FileOutputStream(temporaryRequestFile).use { stream ->
+                stream.write(request.toByteArray(StandardCharsets.UTF_8))
+                stream.flush()
             }
+            // Android 8.1 vendor external-storage providers may also reject
+            // the app-side rename. Publish the complete request directly as
+            // a compatibility fallback, matching the bridge response path.
+            if (!temporaryRequestFile.renameTo(requestFile)) {
+                requestFile.writeText(request, StandardCharsets.UTF_8)
+                temporaryRequestFile.delete()
+            }
+            val deadline = System.currentTimeMillis() + REQUEST_TIMEOUT_MS
+            while (System.currentTimeMillis() < deadline) {
+                val response = sequenceOf(responseFile, temporaryResponseFile)
+                    .filter { it.exists() }
+                    .mapNotNull { file ->
+                        runCatching { file.readText(StandardCharsets.UTF_8).trimEnd() }.getOrNull()
+                    }
+                    .firstOrNull { isCompleteResponse(request, it) }
+                if (response != null) {
+                    return response
+                }
+                Thread.sleep(MAILBOX_POLL_INTERVAL_MS)
+            }
+            null
+        } catch (e: Exception) {
+            com.framescope.app.utils.FrameScopeLog.w(
+                "Bridge mailbox request failed: ${e.javaClass.simpleName}: ${e.message.orEmpty()}",
+                tag = "FrameScopeBridge"
+            )
+            null
+        } finally {
+            requestFile.delete()
+            temporaryRequestFile.delete()
+            responseFile.delete()
+            temporaryResponseFile.delete()
         }
+    }
+
+    /**
+     * Some Android 8.1 external-storage providers fail File.renameTo() even
+     * within the same directory. The bridge keeps the fully written .tmp
+     * response in that case, so only protocol-complete data may be consumed.
+     */
+    private fun isCompleteResponse(request: String, response: String): Boolean = when {
+        request == "PING" -> response == "PONG"
+        request.startsWith("EXEC\t") -> response.startsWith("OK\t")
+        request.startsWith("EXEC_RESULT\t") -> response.startsWith("RESULT\t")
+        else -> response.isNotEmpty()
     }
 
     private fun encode(value: String): String =

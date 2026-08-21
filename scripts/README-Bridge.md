@@ -35,4 +35,4 @@ Set-ExecutionPolicy -Scope Process Bypass
 
 ## 原理
 
-启动脚本使用 `app_process` 从 FrameScope APK 中加载 `ShellBridgeMain`。因为启动者是 `adb shell`，该进程拥有 Shell UID；FrameScope 主 App 仍然保持普通 App UID，双方通过共享存储中的请求/响应文件通信，不依赖网络或 Unix Socket 权限。
+启动脚本使用 `app_process` 从 FrameScope APK 中加载 `ShellBridgeMain`。因为启动者是 `adb shell`，该进程拥有 Shell UID；FrameScope 主 App 仍然保持普通 App UID，双方通过共享存储中的请求/响应文件通信，不依赖网络或 Unix Socket 权限。Android 8.1 设备的 FPS 监测会优先使用有效的 `SurfaceFlinger --latency` 数据，若固件返回全 0，则自动使用前台应用的 `gfxinfo framestats` 完成帧统计。静止页面没有新帧时 FPS 显示 0，属于真实状态。

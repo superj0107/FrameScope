@@ -202,7 +202,9 @@ class ShizukuManager @Inject constructor(
             com.framescope.app.utils.FrameScopeLog.w("executeCommand called without a privileged backend")
             return ""
         }
-        if (!useShizuku() && useBridge()) return bridgeClient.executeCommand(command)
+        // Prefer the embedded Bridge whenever it is reachable. Shizuku is
+        // only a fallback for devices where the Bridge was not started.
+        if (useBridge()) return bridgeClient.executeCommand(command)
         return commandMutex.withLock {
             val runner = awaitCommandRunner() ?: run {
                 com.framescope.app.utils.FrameScopeLog.w("CommandRunner unavailable after bind attempt in executeCommand")
@@ -224,7 +226,7 @@ class ShizukuManager @Inject constructor(
             com.framescope.app.utils.FrameScopeLog.w("executeCommandWithExitCode called without a privileged backend")
             return COMMAND_EXECUTION_FAILED
         }
-        if (!useShizuku() && useBridge()) {
+        if (useBridge()) {
             return bridgeClient.executeCommandWithResult(command)?.exitCode ?: COMMAND_EXECUTION_FAILED
         }
         return commandMutex.withLock {
@@ -248,7 +250,7 @@ class ShizukuManager @Inject constructor(
             com.framescope.app.utils.FrameScopeLog.w("executeCommandWithResult called without a privileged backend")
             return null
         }
-        if (!useShizuku() && useBridge()) return bridgeClient.executeCommandWithResult(command)
+        if (useBridge()) return bridgeClient.executeCommandWithResult(command)
         return commandMutex.withLock {
             val runner = awaitCommandRunner() ?: run {
                 com.framescope.app.utils.FrameScopeLog.w("CommandRunner unavailable after bind attempt in executeCommandWithResult")
