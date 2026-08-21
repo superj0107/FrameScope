@@ -1,0 +1,59 @@
+# ──────────────────────────────────────────────
+#  FrameScope Android — .gitignore
+# ──────────────────────────────────────────────
+
+# Gradle caches and build output
+.gradle/
+build/
+app/build/
+**/build/
+
+# Sensitive / generated signing artifacts — NEVER commit
+*.jks
+*.keystore
+*.pfx
+keystore.properties
+signing.properties
+google-services.json
+secrets.properties
+
+# Heap dumps and profiler snapshots
+*.hprof
+
+# APK / AAB release artifacts
+*.apk
+*.aab
+!releases/*.apk
+
+# Android Studio IDE files
+*.iml
+.idea/
+local.properties
+
+# OS junk
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Debug / log files
+build_errors.txt
+*.log
+
+# Internal research / design folders — not part of the public source
+perfstats/
+stitch/
+# Internal planning docs inside docs/ — keep private
+docs/PRD.md
+docs/sizuka_Api.md
+
+# Kotlin incremental compilation files
+kotlin/
+AGENTS.md
+plan2.md
+plan.md
+framescope_session_*.csv
+logs/*
+docs/VIVO/vivo_t3_ultra_full_device_audit.md
+docs/VIVO/*
+scratch/*
+scratch/vivo_framework/framework/framework/abx.jar.fsv_meta
