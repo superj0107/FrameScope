@@ -67,9 +67,62 @@ FrameScope displays a fully customizable, low-overhead overlay on top of any app
 
 - Android 8.0 (API 26) or higher
 - English and Simplified Chinese in-app UI; the initial language follows the system language and can be changed in **About & Legal → Language**
-- [Shizuku](https://github.com/RikkaApps/Shizuku) installed and running
-- Activate via Wireless Debugging (no PC needed on Android 11+) or ADB
+- Basic monitoring works without Shizuku after granting the draw-over-other-apps permission
+- External-app FPS access, Gaming Mode, and deep optimization require [Shizuku](https://github.com/RikkaApps/Shizuku)
+- Activate Shizuku via Wireless Debugging on Android 11+ or via USB ADB
 - Works with the Sui module on rooted devices
+
+## Basic Monitoring vs. Deep Optimization
+
+FrameScope separates its features into two levels:
+
+- **Basic monitoring:** works without Shizuku and provides CPU, RAM, storage, Ping, basic thermal status, and the overlay.
+- **Deep optimization:** requires Shizuku permission for external-app SurfaceFlinger FPS access, Gaming Mode, background package suspension, refresh-rate locking, fixed performance mode, and Vivo hardware optimization.
+
+FrameScope still opens normally without Shizuku. Detailed multi-sensor temperatures, external-app FPS access, and privileged system changes remain unavailable until Shizuku is running.
+
+## Shizuku Setup Tutorial
+
+The following example assumes the watch is already connected through ADB. A computer is needed for the first setup; FrameScope does not need a permanent computer connection while Shizuku remains running.
+
+### 1. Install Shizuku
+
+Download the latest APK from the [official Shizuku Releases](https://github.com/RikkaApps/Shizuku/releases), then run this in PowerShell:
+
+```powershell
+adb devices
+adb -s <device-serial> install -r <path-to-Shizuku-apk>
+```
+
+If `adb devices` does not list the watch, enable Developer options and USB debugging first.
+
+### 2. Start the Shizuku service
+
+After installation, run:
+
+```powershell
+adb -s <device-serial> shell sh /sdcard/Android/data/moe.shizuku.privileged.api/start.sh
+```
+
+You can also open Shizuku first and follow the app's **Start via ADB** instructions.
+
+### 3. Grant FrameScope access
+
+1. Open Shizuku and confirm that it says **Running**.
+2. Open FrameScope → **Permissions**.
+3. Tap the Shizuku permission action and allow FrameScope.
+4. Return to the dashboard to use external-app FPS, Gaming Mode, and deep optimization.
+
+### 4. After reboot
+
+Shizuku started through ADB usually needs to be started again after a reboot. Repeat step 2; FrameScope itself does not need to be reinstalled.
+
+### Troubleshooting
+
+- **The “Open Shizuku” button does nothing:** Shizuku is usually not installed. A normal APK cannot embed a shell-privileged service.
+- **`start.sh` is not found:** Open Shizuku once and run the command again; some Shizuku versions show a version-specific command in the app.
+- **Shizuku is running but FrameScope is disconnected:** allow FrameScope in Shizuku's authorized-app list, then restart FrameScope.
+- **No computer on Android 11+:** enable and pair Wireless debugging in Developer options, then choose **Start via wireless debugging** in Shizuku.
 
 ---
 
@@ -119,7 +172,7 @@ The repository includes the debug APK tested on an Android 8.1 watch:
 - [FrameScope_v0.1.0-debug.apk](releases/FrameScope_v0.1.0-debug.apk)
 - Package: `com.framescope.app`
 - Minimum Android version: Android 8.0 (API 26)
-- The FPS overlay requires Shizuku and the draw-over-other-apps permission.
+- The basic overlay can start with the draw-over-other-apps permission; external-app FPS readings require Shizuku.
 
 
 ---

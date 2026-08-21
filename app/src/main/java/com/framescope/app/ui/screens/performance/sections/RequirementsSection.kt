@@ -47,13 +47,12 @@ fun RequirementsSection(
                     else "Shizuku not running",
                     satisfied = shizukuReady,
                     onAction = if (!shizukuReady) ({
-                        context.startActivity(
-                            context.packageManager
-                                .getLaunchIntentForPackage("moe.shizuku.privileged.api")
-                                ?: Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
-                        )
+                        val shizukuIntent = context.packageManager
+                            .getLaunchIntentForPackage("moe.shizuku.privileged.api")
+                            ?: Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/RikkaApps/Shizuku/releases"))
+                        context.startActivity(shizukuIntent)
                     }) else null,
-                    actionLabel = if (isShizukuAvailable) "Grant" else "Open"
+                    actionLabel = if (isShizukuAvailable) "Grant" else "Install"
                 )
                 HorizontalDivider(color = Color.White.copy(0.04f))
                 RequirementRow(

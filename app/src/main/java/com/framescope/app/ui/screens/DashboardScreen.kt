@@ -86,8 +86,10 @@ fun DashboardScreen(
         lifecycleOwner.lifecycle.addObserver(observer)
         onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
     }
-    // All three must be true before the overlay can be started.
-    val allPermissionsReady = hasOverlayPermission && isShizukuAvailable && hasShizukuPermission
+    // Basic monitoring only needs the overlay permission. Shizuku unlocks the
+    // privileged SurfaceFlinger FPS reader and the advanced optimization suite.
+    val basicMonitoringReady = hasOverlayPermission
+    val advancedOptimizationReady = isShizukuAvailable && hasShizukuPermission
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -314,7 +316,7 @@ fun DashboardScreen(
                         Text(tr("Stop Overlay"), fontWeight = FontWeight.Bold)
                     }
                 } else {
-                    if (allPermissionsReady) {
+                    if (basicMonitoringReady) {
                         PrimaryButton(
                             text = tr("Start Overlay"),
                             onClick = {
@@ -325,12 +327,20 @@ fun DashboardScreen(
                             },
                             icon = { Icon(Icons.Default.PlayArrow, contentDescription = null, modifier = Modifier.size(28.dp)) }
                         )
+                        if (!advancedOptimizationReady) {
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Text(
+                                text = tr("Basic monitoring is available. Shizuku is needed for external-app FPS access and advanced optimization."),
+                                color = Color.Gray,
+                                fontSize = 11.sp,
+                                modifier = Modifier.fillMaxWidth(),
+                                textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                            )
+                        }
                     } else {
-                        // One or more required permissions are missing — guide the user to fix them.
+                        // The overlay permission is the only required permission for basic monitoring.
                         val missing = buildList {
                             if (!hasOverlayPermission) add(tr("Overlay permission"))
-                            if (!isShizukuAvailable) add(tr("Shizuku service"))
-                            if (!hasShizukuPermission) add(tr("Shizuku permission"))
                         }
                         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                             Text(

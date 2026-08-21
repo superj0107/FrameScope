@@ -65,9 +65,62 @@ FrameScope 可在任意应用或全屏游戏上方显示可自定义、低开销
 
 - Android 8.0（API 26）或更高版本
 - App 内支持 English 和简体中文；首次启动会跟随系统语言，也可以在 **关于与法律信息 → 语言** 中手动切换
-- 已安装并运行 [Shizuku](https://github.com/RikkaApps/Shizuku)
-- Android 11 及以上可通过无线调试激活，无需电脑；也可以使用 ADB 激活
+- 基础监测只需要“显示在其他应用上层”权限，不安装 Shizuku 也可以打开 App、查看 RAM/CPU/存储/Ping 等信息
+- 外部应用的真实 FPS 读取、游戏模式和深度优化需要 [Shizuku](https://github.com/RikkaApps/Shizuku)
+- Android 11 及以上可通过无线调试激活 Shizuku，也可以使用 USB ADB 激活
 - Root 设备可配合 Sui 模块使用
+
+## 基础监测与深度优化
+
+FrameScope 将功能分为两部分：
+
+- **基础监测：** 不依赖 Shizuku，可查看 CPU、RAM、存储、Ping、基础温度状态，并打开悬浮窗。
+- **深度优化：** 需要 Shizuku 权限，用于读取其他应用的 SurfaceFlinger FPS、游戏模式、后台应用挂起、刷新率锁定、固定性能模式和 Vivo 硬件优化。
+
+没有 Shizuku 时，App 仍然可以正常打开；只是详细多传感器温度、外部应用真实 FPS 和高级系统修改功能会显示为不可用。
+
+## Shizuku 安装与启动教程
+
+下面以已经连接 ADB 的手表为例。首次配置需要电脑，完成后 FrameScope 在 Shizuku 运行期间不需要一直连接电脑。
+
+### 1. 安装 Shizuku
+
+从 [Shizuku 官方 Releases](https://github.com/RikkaApps/Shizuku/releases) 下载最新 APK，然后在电脑 PowerShell 中执行：
+
+```powershell
+adb devices
+adb -s <设备序列号> install -r <Shizuku APK 文件路径>
+```
+
+如果 `adb devices` 看不到设备，请先打开手表的开发者选项和 USB 调试。
+
+### 2. 启动 Shizuku 服务
+
+安装完成后执行：
+
+```powershell
+adb -s <设备序列号> shell sh /sdcard/Android/data/moe.shizuku.privileged.api/start.sh
+```
+
+也可以先打开 Shizuku，再按照 Shizuku 页面中的“通过 ADB 启动”提示执行命令。
+
+### 3. 授予 FrameScope 权限
+
+1. 打开 Shizuku，确认状态显示“正在运行”。
+2. 打开 FrameScope → **权限设置**。
+3. 点击 Shizuku 权限旁的授权按钮，并在弹窗中允许。
+4. 返回仪表盘，即可使用外部应用 FPS、游戏模式和深度优化。
+
+### 4. 手表重启后的处理
+
+通过 ADB 启动的 Shizuku 通常不会跨重启保留。手表重启后，再执行第 2 步即可；FrameScope 本身不需要重新安装。
+
+### 常见问题
+
+- **点击“打开 Shizuku”没有反应：** 通常是 Shizuku 尚未安装。FrameScope 不能把 shell 权限服务直接塞进普通 APK。
+- **提示找不到 `start.sh`：** 先打开一次 Shizuku，再重新执行启动命令；不同 Shizuku 版本也可能在 App 内显示专用命令。
+- **Shizuku 已运行但 FrameScope 未连接：** 打开 Shizuku 的已授权应用列表，确认已允许 FrameScope，然后重启 FrameScope。
+- **Android 11 及以上无电脑启动：** 在开发者选项中开启无线调试并完成配对，再在 Shizuku 中选择“通过无线调试启动”。
 
 ## 截图
 
@@ -112,7 +165,7 @@ cd FrameScope-Android
 - [GitHub Release v0.1.0](https://github.com/superj0107/FrameScope/releases/tag/v0.1.0)
 - 包名：`com.framescope.app`
 - 最低 Android 版本：Android 8.0（API 26）
-- FPS 悬浮窗需要 Shizuku 和“显示在其他应用上层”权限
+- 基础悬浮窗只需要“显示在其他应用上层”权限；读取外部应用真实 FPS 需要 Shizuku
 
 ## 权限说明
 

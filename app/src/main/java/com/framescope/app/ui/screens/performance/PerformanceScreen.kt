@@ -164,6 +164,40 @@ fun PerformanceScreen(
                 }
             }
 
+            // Basic monitoring: these panels work without Shizuku.
+            item {
+                Text(
+                    tr("BASIC MONITORING"),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = Color.Gray,
+                    modifier = Modifier.padding(start = 28.dp, bottom = 12.dp)
+                )
+            }
+            item {
+                SystemHealthGaugesSection(
+                    ramPercentage = ramPercentage,
+                    cpuPercentage = metricsState.cpuPercentage?.toFloat()
+                )
+            }
+            item {
+                StorageAndPingCard(
+                    storageInfo = storageInfo,
+                    currentPing = activeLatencyDiagnostic ?: metricsState.pingMs,
+                    isOptimizingNet = isOptimizingNet
+                )
+                Spacer(modifier = Modifier.height(24.dp))
+            }
+
+            // Advanced optimization: Shizuku is required for this section.
+            item {
+                Text(
+                    tr("ADVANCED OPTIMIZATION"),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = Color.Gray,
+                    modifier = Modifier.padding(start = 28.dp, bottom = 12.dp)
+                )
+            }
+
             // Hero Gaming Mode card
             item {
                 HeroGamingCard(
@@ -190,24 +224,6 @@ fun PerformanceScreen(
                     hasDndAccess = hasDndAccess,
                     hasNotifListenerAccess = hasNotifListenerAccess
                 )
-            }
-
-            // System Health Gauges
-            item {
-                SystemHealthGaugesSection(
-                    ramPercentage = ramPercentage,
-                    cpuPercentage = metricsState.cpuPercentage?.toFloat()
-                )
-            }
-
-            // Storage & Ping card
-            item {
-                StorageAndPingCard(
-                    storageInfo = storageInfo,
-                    currentPing = activeLatencyDiagnostic ?: metricsState.pingMs,
-                    isOptimizingNet = isOptimizingNet
-                )
-                Spacer(modifier = Modifier.height(24.dp))
             }
 
             // Optimization sliders
