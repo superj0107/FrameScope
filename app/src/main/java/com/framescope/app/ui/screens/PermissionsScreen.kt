@@ -38,6 +38,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.framescope.app.shizuku.ShizukuManager
+import com.framescope.app.bridge.FrameScopeBridgeClient
 import com.framescope.app.i18n.tr
 import com.framescope.app.ui.featurediscovery.DiscoveryScreenId
 import com.framescope.app.ui.featurediscovery.ScreenDiscoveryEffect
@@ -64,6 +65,8 @@ class PermissionsViewModel @Inject constructor(
         
     val hasShizukuPermission = shizukuManager.hasPermission
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
+    val isBridgeAvailable = shizukuManager.isBridgeAvailable
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
         
     fun requestShizukuPermission() {
         shizukuManager.requestPermission()
@@ -84,6 +87,7 @@ fun PermissionsScreen(
     val context = LocalContext.current
     val isShizukuAvailable by viewModel.isShizukuAvailable.collectAsState()
     val hasShizukuPermission by viewModel.hasShizukuPermission.collectAsState()
+    val isBridgeAvailable by viewModel.isBridgeAvailable.collectAsState()
     var hasOverlayPermission by remember { mutableStateOf(android.provider.Settings.canDrawOverlays(context)) }
     var hasWriteSettingsPermission by remember { mutableStateOf(android.provider.Settings.System.canWrite(context)) }
     fun checkNotificationPermission(): Boolean {
@@ -194,19 +198,19 @@ fun PermissionsScreen(
                                 }
                                 Spacer(modifier = Modifier.width(12.dp))
                                 Column {
-                                    Text(tr("Shizuku Service"), color = Color.White, fontWeight = FontWeight.SemiBold, fontSize = 16.sp)
+                                    Text(tr("FrameScope Bridge"), color = Color.White, fontWeight = FontWeight.SemiBold, fontSize = 16.sp)
                                     Spacer(modifier = Modifier.height(2.dp))
                                     Row(
                                         modifier = Modifier.clip(CircleShape)
-                                            .background(if (isShizukuAvailable && hasShizukuPermission) Color(0xFF2FBF9F).copy(0.14f) else Color.Red.copy(0.14f))
+                                            .background(if (isBridgeAvailable || (isShizukuAvailable && hasShizukuPermission)) Color(0xFF2FBF9F).copy(0.14f) else Color.Red.copy(0.14f))
                                             .padding(horizontal = 8.dp, vertical = 2.dp),
                                         verticalAlignment = Alignment.CenterVertically
                                     ) {
-                                        Box(modifier = Modifier.size(5.dp).clip(CircleShape).background(if (isShizukuAvailable && hasShizukuPermission) Color(0xFF2FBF9F) else Color.Red))
+                                        Box(modifier = Modifier.size(5.dp).clip(CircleShape).background(if (isBridgeAvailable || (isShizukuAvailable && hasShizukuPermission)) Color(0xFF2FBF9F) else Color.Red))
                                         Spacer(modifier = Modifier.width(5.dp))
                                         Text(
-                                            tr(if (isShizukuAvailable && hasShizukuPermission) "RUNNING & GRANTED" else if (isShizukuAvailable) "PERMISSION REQUIRED" else "NOT RUNNING"),
-                                            color = if (isShizukuAvailable && hasShizukuPermission) Color(0xFF2FBF9F) else Color.Red,
+                                            tr(if (isBridgeAvailable) "RUNNING (SHELL)" else if (isShizukuAvailable && hasShizukuPermission) "RUNNING & GRANTED" else if (isShizukuAvailable) "PERMISSION REQUIRED" else "NOT RUNNING"),
+                                            color = if (isBridgeAvailable || (isShizukuAvailable && hasShizukuPermission)) Color(0xFF2FBF9F) else Color.Red,
                                             fontSize = 10.sp,
                                             fontWeight = FontWeight.Bold
                                         )
@@ -215,7 +219,7 @@ fun PermissionsScreen(
                             }
                             Spacer(modifier = Modifier.height(16.dp))
                             Text(
-                                text = tr("The core bridge for non-root access. Please ensure Shizuku is running via ADB or Wireless Debugging."),
+                                text = tr("The built-in shell bridge reads real external-app FPS. Start it once with the ADB command below; Shizuku is optional."),
                                 color = Color.White.copy(alpha = 0.6f),
                                 style = MaterialTheme.typography.bodySmall,
                                 fontSize = 12.5.sp
@@ -224,38 +228,38 @@ fun PermissionsScreen(
                             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                                 Button(
                                     onClick = {
-                                        val intent = context.packageManager.getLaunchIntentForPackage("moe.shizuku.privileged.api")
-                                        if (intent != null) {
-                                            context.startActivity(intent)
-                                        } else {
-                                            android.widget.Toast.makeText(context, com.framescope.app.i18n.trStatic("Shizuku app not found"), android.widget.Toast.LENGTH_SHORT).show()
-                                        }
+                                        val clipboard = context.getSystemService(android.content.ClipboardManager::class.java)
+                                        clipboard.setPrimaryClip(android.content.ClipData.newPlainText("FrameScope Bridge", "adb shell ${FrameScopeBridgeClient.START_COMMAND}"))
+                                        android.widget.Toast.makeText(context, com.framescope.app.i18n.trStatic("ADB command copied"), android.widget.Toast.LENGTH_SHORT).show()
                                     },
                                     modifier = Modifier.weight(1f).height(40.dp),
                                     shape = CircleShape,
                                     colors = ButtonDefaults.buttonColors(containerColor = Color.White.copy(0.08f), contentColor = Color.White)
                                 ) {
-                                    Text(tr("Launch App"), fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                                    Text(tr("Copy ADB Command"), fontSize = 12.sp, fontWeight = FontWeight.Bold)
                                 }
                                 
                                 Button(
                                     onClick = {
-                                        if (isShizukuAvailable && !hasShizukuPermission) {
+                                        if (isBridgeAvailable) {
+                                            viewModel.refreshShizukuState()
+                                        } else if (isShizukuAvailable && !hasShizukuPermission) {
                                             viewModel.requestShizukuPermission()
                                         } else if (!isShizukuAvailable) {
-                                            android.widget.Toast.makeText(context, com.framescope.app.i18n.trStatic("Start Shizuku service first"), android.widget.Toast.LENGTH_SHORT).show()
+                                            viewModel.refreshShizukuState()
+                                            android.widget.Toast.makeText(context, com.framescope.app.i18n.trStatic("Start the FrameScope Bridge with ADB first"), android.widget.Toast.LENGTH_SHORT).show()
                                         }
                                     },
                                     modifier = Modifier.weight(1f).height(40.dp),
                                     shape = CircleShape,
-                                    enabled = !hasShizukuPermission,
+                                    enabled = !isBridgeAvailable && !hasShizukuPermission,
                                     colors = ButtonDefaults.buttonColors(
                                         containerColor = if (hasShizukuPermission) Color(0xFF2FBF9F) else MaterialTheme.colorScheme.primary,
                                         disabledContainerColor = Color(0xFF2FBF9F).copy(alpha = 0.5f),
                                         disabledContentColor = Color.White
                                     )
                                 ) {
-                                    Text(tr(if (hasShizukuPermission) "Authorized" else "Grant Access"), fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                                    Text(tr(if (isBridgeAvailable || hasShizukuPermission) "Connected" else if (isShizukuAvailable) "Grant Access" else "Refresh"), fontSize = 12.sp, fontWeight = FontWeight.Bold)
                                 }
                             }
                         }

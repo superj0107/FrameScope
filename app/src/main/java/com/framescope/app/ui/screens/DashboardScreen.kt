@@ -86,8 +86,8 @@ fun DashboardScreen(
         lifecycleOwner.lifecycle.addObserver(observer)
         onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
     }
-    // Basic monitoring only needs the overlay permission. Shizuku unlocks the
-    // privileged SurfaceFlinger FPS reader and the advanced optimization suite.
+    // Basic monitoring only needs the overlay permission. The shell bridge or
+    // optional Shizuku unlocks the privileged SurfaceFlinger FPS reader.
     val basicMonitoringReady = hasOverlayPermission
     val advancedOptimizationReady = isShizukuAvailable && hasShizukuPermission
     Column(
@@ -330,7 +330,7 @@ fun DashboardScreen(
                         if (!advancedOptimizationReady) {
                             Spacer(modifier = Modifier.height(8.dp))
                             Text(
-                                text = tr("Basic monitoring is available. Shizuku is needed for external-app FPS access and advanced optimization."),
+                                text = tr("Basic monitoring is available. Start the FrameScope Bridge once with ADB for external-app FPS and advanced optimization."),
                                 color = Color.Gray,
                                 fontSize = 11.sp,
                                 modifier = Modifier.fillMaxWidth(),
@@ -434,7 +434,7 @@ fun DashboardScreen(
                     )
                 )
                 QuickActionButton(
-                    title = tr("Shizuku"),
+                    title = tr("FrameScope Bridge"),
                     subtitle = tr(if (isShizukuReady) "Connected" else "Not Connected"),
                     iconContainerColor = if (isShizukuReady) Color(0xFF3D9BE0).copy(alpha = 0.14f) else Color.Red.copy(0.14f),
                     iconContentColor = if (isShizukuReady) Color(0xFF6EB8EE) else Color.Red,

@@ -4,7 +4,7 @@
 
 ![FrameScope Banner](docs/assets/banner.png)
 
-> Rootless Android performance overlay featuring live FPS metering, thermal diagnostics, and privileged gaming optimization via Shizuku.
+> Rootless Android performance overlay featuring live FPS metering, thermal diagnostics, and privileged gaming optimization via the built-in FrameScope Bridge.
 
 > **Fork note:** FrameScope is a derivative of the MIT-licensed [FrameX-Android](https://github.com/MaheshSharan/FrameX-Android). This fork renames the application and adds an Android 8.1-compatible foreground-layer FPS reader based on `SurfaceFlinger --latency`.
 
@@ -67,62 +67,54 @@ FrameScope displays a fully customizable, low-overhead overlay on top of any app
 
 - Android 8.0 (API 26) or higher
 - English and Simplified Chinese in-app UI; the initial language follows the system language and can be changed in **About & Legal → Language**
-- Basic monitoring works without Shizuku after granting the draw-over-other-apps permission
-- External-app FPS access, Gaming Mode, and deep optimization require [Shizuku](https://github.com/RikkaApps/Shizuku)
-- Activate Shizuku via Wireless Debugging on Android 11+ or via USB ADB
-- Works with the Sui module on rooted devices
+- Basic monitoring works without the bridge after granting the draw-over-other-apps permission
+- External-app FPS access, Gaming Mode, and deep optimization require the built-in FrameScope Bridge or optional [Shizuku](https://github.com/RikkaApps/Shizuku)
+- The Bridge is started once through USB ADB; no computer connection is needed while it remains alive
+- Works with the Sui module on rooted devices as an alternative backend
 
 ## Basic Monitoring vs. Deep Optimization
 
 FrameScope separates its features into two levels:
 
-- **Basic monitoring:** works without Shizuku and provides CPU, RAM, storage, Ping, basic thermal status, and the overlay.
-- **Deep optimization:** requires Shizuku permission for external-app SurfaceFlinger FPS access, Gaming Mode, background package suspension, refresh-rate locking, fixed performance mode, and Vivo hardware optimization.
+- **Basic monitoring:** works without a privileged backend and provides CPU, RAM, storage, Ping, basic thermal status, and the overlay.
+- **Deep optimization:** uses the FrameScope Bridge (or Shizuku fallback) for external-app SurfaceFlinger FPS access, Gaming Mode, background package suspension, refresh-rate locking, fixed performance mode, and Vivo hardware optimization.
 
-FrameScope still opens normally without Shizuku. Detailed multi-sensor temperatures, external-app FPS access, and privileged system changes remain unavailable until Shizuku is running.
+FrameScope still opens normally without the Bridge. Detailed multi-sensor temperatures, external-app FPS access, and privileged system changes remain unavailable until the Bridge or Shizuku is running.
 
-## Shizuku Setup Tutorial
+## FrameScope Bridge setup (recommended)
 
-The following example assumes the watch is already connected through ADB. A computer is needed for the first setup; FrameScope does not need a permanent computer connection while Shizuku remains running.
+The Bridge is already inside the FrameScope APK. It is not a second app and does not require Shizuku. Because Android cannot let a normal app raise its own UID to `shell`, the Bridge must be started once by ADB.
 
-### 1. Install Shizuku
-
-Download the latest APK from the [official Shizuku Releases](https://github.com/RikkaApps/Shizuku/releases), then run this in PowerShell:
+### 1. Install FrameScope
 
 ```powershell
-adb devices
-adb -s <device-serial> install -r <path-to-Shizuku-apk>
+adb -s <device-serial> install -r <path-to-FrameScope.apk>
 ```
 
-If `adb devices` does not list the watch, enable Developer options and USB debugging first.
+### 2. Start the embedded Bridge
 
-### 2. Start the Shizuku service
+The easiest way is to double-click **`启动FrameScope桥接服务.bat`** in the repository root. It automatically selects the only connected ADB watch; if multiple devices are connected, it asks for the watch serial number.
 
-After installation, run:
+To stop the service, double-click **`停止FrameScope桥接服务.bat`**.
+
+If Windows blocks the batch file, you can run the underlying PowerShell script manually from the repository root:
+
+From the repository root in PowerShell:
 
 ```powershell
-adb -s <device-serial> shell sh /sdcard/Android/data/moe.shizuku.privileged.api/start.sh
+Set-ExecutionPolicy -Scope Process Bypass
+.\scripts\start-framescope-bridge.ps1 -Serial <device-serial>
 ```
 
-You can also open Shizuku first and follow the app's **Start via ADB** instructions.
+The same command is available in the app under **Permissions → Copy ADB Command**. Open FrameScope and confirm that **FrameScope Bridge** shows **RUNNING (SHELL)**. The computer can now be disconnected; the app talks to the Bridge through a local shared-storage mailbox.
 
-### 3. Grant FrameScope access
+### 3. After reboot
 
-1. Open Shizuku and confirm that it says **Running**.
-2. Open FrameScope → **Permissions**.
-3. Tap the Shizuku permission action and allow FrameScope.
-4. Return to the dashboard to use external-app FPS, Gaming Mode, and deep optimization.
+Run the start script again. Reinstalling FrameScope or installing Shizuku is not necessary. The click-to-run launchers are in the repository root, and the underlying PowerShell scripts are in [`scripts/`](scripts/). All of these files are included in the GitHub repository. See [scripts/README-Bridge.md](scripts/README-Bridge.md) for troubleshooting.
 
-### 4. After reboot
+### Optional Shizuku fallback
 
-Shizuku started through ADB usually needs to be started again after a reboot. Repeat step 2; FrameScope itself does not need to be reinstalled.
-
-### Troubleshooting
-
-- **The “Open Shizuku” button does nothing:** Shizuku is usually not installed. A normal APK cannot embed a shell-privileged service.
-- **`start.sh` is not found:** Open Shizuku once and run the command again; some Shizuku versions show a version-specific command in the app.
-- **Shizuku is running but FrameScope is disconnected:** allow FrameScope in Shizuku's authorized-app list, then restart FrameScope.
-- **No computer on Android 11+:** enable and pair Wireless debugging in Developer options, then choose **Start via wireless debugging** in Shizuku.
+Shizuku is still supported for users who already have it installed. Start Shizuku normally, grant FrameScope access, and FrameScope will use it when the embedded Bridge is unavailable.
 
 ---
 
@@ -172,7 +164,7 @@ The repository includes the debug APK tested on an Android 8.1 watch:
 - [FrameScope_v0.1.0-debug.apk](releases/FrameScope_v0.1.0-debug.apk)
 - Package: `com.framescope.app`
 - Minimum Android version: Android 8.0 (API 26)
-- The basic overlay can start with the draw-over-other-apps permission; external-app FPS readings require Shizuku.
+- The basic overlay can start with the draw-over-other-apps permission; external-app FPS readings require FrameScope Bridge or Shizuku.
 
 
 ---
@@ -194,7 +186,7 @@ The repository includes the debug APK tested on an Android 8.1 watch:
 | Foreground service (Special Use) | Ensures Gaming Mode stays active on Android 14+ |
 | Post Notifications (Android 13+) | Display session status & quick-control notification controls |
 | QUERY_ALL_PACKAGES | Load installed games and apps for Game Launcher optimization |
-| Shizuku Privileged API | High-precision FPS metering (`SurfaceFlinger`), multi-sensor thermal diagnostics (`IThermalService`), ART RAM heap compaction, and OriginOS Esports hardware engine |
+| FrameScope Bridge / Shizuku | High-precision FPS metering (`SurfaceFlinger`), multi-sensor thermal diagnostics, ART RAM heap compaction, and OriginOS Esports hardware engine |
 
 ---
 
@@ -218,7 +210,7 @@ A small number of metrics depend on data some device vendors don't expose. See [
 
 ## Credits
 
-- [Shizuku](https://github.com/RikkaApps/Shizuku) by [RikkaW](https://github.com/RikkaApps) — the privileged API bridge that makes rootless system access possible. FrameScope would not exist without it.
+- [Shizuku](https://github.com/RikkaApps/Shizuku) by [RikkaW](https://github.com/RikkaApps) — optional compatibility backend for privileged system access.
 
 ---
 
