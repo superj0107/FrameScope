@@ -66,7 +66,7 @@ class FpsMonitor @Inject constructor(
         var activePackage = ""
         var activeLayer = ""
         var layerReady = false
-        var useGfxInfoFallback = false
+        var backend = FpsBackend.SURFACE_FLINGER
         var lastForegroundCheckMs = 0L
         var lastGfxInfoSampleMs = 0L
         var lastState = FpsState(0, 0)
@@ -96,10 +96,10 @@ class FpsMonitor @Inject constructor(
                             activePackage = packageName
                             activeLayer = ""
                             layerReady = false
-                            // The target Android 8.1 build returns 0 0 0 for
-                            // SurfaceFlinger --latency. Use its working
-                            // gfxinfo framestats source directly.
-                            useGfxInfoFallback = true
+                            // Probe SurfaceFlinger for every new package. If
+                            // this ROM does not expose valid timestamps, the
+                            // latency branch switches to gfxinfo below.
+                            backend = FpsBackend.SURFACE_FLINGER
                             lastGfxInfoSampleMs = 0L
                             lastState = FpsState(0, 0)
                         }
@@ -108,11 +108,29 @@ class FpsMonitor @Inject constructor(
                     if (activePackage.isEmpty()) {
                         lastState = FpsState(0, 0)
                         emit(lastState)
-                    } else if (!useGfxInfoFallback && activeLayer.isEmpty()) {
-                        val layerDump = shizukuManager.executeCommand("dumpsys SurfaceFlinger --list")
+                    } else if (backend == FpsBackend.GFXINFO) {
+                        if (now - lastGfxInfoSampleMs >= GFXINFO_SAMPLE_INTERVAL_MS) {
+                            val gfxInfo = shizukuManager.executeCommand(
+                                "dumpsys gfxinfo ${shellQuote(activePackage)} framestats"
+                            )
+                            val frameTimes = parseGfxInfoFrameTimes(gfxInfo)
+                            // FrameCompleted uses the device monotonic clock.
+                            // Restrict the calculation to the last real-time
+                            // second; using the whole retained gfxinfo history
+                            // can mix old frames or produce impossible values.
+                            lastState = calculateRecentFps(frameTimes, System.nanoTime())
+                            lastGfxInfoSampleMs = now
+                        }
+                        emit(lastState)
+                    } else if (activeLayer.isEmpty()) {
+                        // Filter on-device before returning the layer list. A
+                        // full SurfaceFlinger dump can be tens of KB and may
+                        // overwhelm the Android 8.1 shared-storage mailbox.
+                        val layerDump = shizukuManager.executeCommand(
+                            "dumpsys SurfaceFlinger --list | grep -F ${shellQuote("$activePackage/")}"
+                        )
                         val layerCandidates = layerDump.lineSequence()
                             .map { it.trim() }
-                            .filter { it.contains("$activePackage/") }
                             .filterNot { line ->
                                 NON_RENDERING_LAYER_MARKERS.any { marker ->
                                     line.contains(marker, ignoreCase = true)
@@ -133,15 +151,15 @@ class FpsMonitor @Inject constructor(
                         )
                         if (layerReady) {
                             shizukuManager.executeCommand(
-                                "dumpsys SurfaceFlinger --latency-clear '$activeLayer'"
+                                "dumpsys SurfaceFlinger --latency-clear ${shellQuote(activeLayer)}"
                             )
                         } else {
-                            useGfxInfoFallback = true
+                            backend = FpsBackend.GFXINFO
                             com.framescope.app.utils.FrameScopeLog.i(
                                 "FPS using gfxinfo fallback for $activePackage",
                                 tag = "FpsMonitor"
                             )
-                            shizukuManager.executeCommand("dumpsys gfxinfo $activePackage reset")
+                            shizukuManager.executeCommand("dumpsys gfxinfo ${shellQuote(activePackage)} reset")
                         }
                         // The latency/gfxinfo buffer was just cleared. Wait for a
                         // complete sampling interval before reading it.
@@ -149,22 +167,6 @@ class FpsMonitor @Inject constructor(
                         emit(lastState)
                         delay(SAMPLE_INTERVAL_MS)
                         continue
-                    } else if (useGfxInfoFallback) {
-                        if (now - lastGfxInfoSampleMs >= GFXINFO_SAMPLE_INTERVAL_MS) {
-                            val gfxInfo = shizukuManager.executeCommand(
-                                "dumpsys gfxinfo $activePackage framestats"
-                            )
-                            val frameTimes = parseGfxInfoFrameTimes(gfxInfo)
-                            // FrameCompleted uses the device monotonic clock.
-                            // Restrict the calculation to the last real-time
-                            // second; using the whole retained gfxinfo history
-                            // can mix old frames, produce 0 from unsorted rows,
-                            // or report impossible values above the display
-                            // refresh rate.
-                            lastState = calculateRecentFps(frameTimes, System.nanoTime())
-                            lastGfxInfoSampleMs = now
-                        }
-                        emit(lastState)
                     } else if (!layerReady) {
                         lastState = FpsState(0, 0)
                         emit(lastState)
@@ -181,13 +183,13 @@ class FpsMonitor @Inject constructor(
                             // --latency rows but return only 0 0 0. Fall back
                             // to gfxinfo framestats, which is available on the
                             // target watch and contains completed frame times.
-                            useGfxInfoFallback = true
+                            backend = FpsBackend.GFXINFO
                             com.framescope.app.utils.FrameScopeLog.i(
                                 "FPS latency returned fewer than 2 present times; switching to gfxinfo for $activePackage",
                                 tag = "FpsMonitor"
                             )
                             lastGfxInfoSampleMs = 0L
-                            shizukuManager.executeCommand("dumpsys gfxinfo $activePackage reset")
+                            shizukuManager.executeCommand("dumpsys gfxinfo ${shellQuote(activePackage)} reset")
                             lastState = FpsState(0, 0)
                         } else {
                             lastState = calculateFps(presentTimes)
@@ -196,7 +198,7 @@ class FpsMonitor @Inject constructor(
                         // a static page report 0 new frames instead of repeating
                         // the last value forever.
                         shizukuManager.executeCommand(
-                            "dumpsys SurfaceFlinger --latency-clear '$activeLayer'"
+                            "dumpsys SurfaceFlinger --latency-clear ${shellQuote(activeLayer)}"
                         )
                         emit(lastState)
                     }
@@ -212,7 +214,7 @@ class FpsMonitor @Inject constructor(
                 activePackage = ""
                 activeLayer = ""
                 layerReady = false
-                useGfxInfoFallback = false
+                backend = FpsBackend.SURFACE_FLINGER
                 lastState = FpsState(0, 0)
                 emit(lastState)
             }
@@ -246,28 +248,49 @@ class FpsMonitor @Inject constructor(
         return FpsState(fps.coerceAtLeast(0), janky)
     }
 
-    private fun parseGfxInfoFrameTimes(dump: String): List<Long> = dump.lineSequence()
-        .map { it.trim() }
-        .mapNotNull { line ->
+    private fun parseGfxInfoFrameTimes(dump: String): List<Long> {
+        var completedColumn = GFXINFO_DEFAULT_FRAME_COMPLETED_COLUMN
+        val frameTimes = mutableListOf<Long>()
+
+        dump.lineSequence().forEach { rawLine ->
+            val line = rawLine.trim()
             val columns = line.split(',')
-            // PROFILEDATA CSV column 16 is FrameCompleted. The header is
-            // emitted by Android 8.1's dumpsys gfxinfo framestats output.
-            if (columns.size > GFXINFO_FRAME_COMPLETED_COLUMN && columns[0].toIntOrNull() != null) {
-                columns[GFXINFO_FRAME_COMPLETED_COLUMN].toLongOrNull()?.takeIf { it > 0L }
-            } else {
-                null
+            val headerColumn = columns.indexOfFirst {
+                it.trim().equals("FrameCompleted", ignoreCase = true)
+            }
+            if (headerColumn >= 0) {
+                completedColumn = headerColumn
+                return@forEach
+            }
+
+            if (columns.firstOrNull()?.toIntOrNull() != null && columns.size > completedColumn) {
+                val rawTimestamp = columns[completedColumn].toLongOrNull() ?: return@forEach
+                if (rawTimestamp > 0L) {
+                    frameTimes += normalizeFrameTimestamp(rawTimestamp)
+                }
             }
         }
-        .distinct()
-        .sorted()
-        .toList()
+
+        return frameTimes.distinct().sorted()
+    }
+
+    private fun normalizeFrameTimestamp(timestamp: Long): Long =
+        // AOSP framestats is nanoseconds. A few vendor dumps have emitted
+        // millisecond values instead; normalize those before comparing with
+        // System.nanoTime().
+        if (timestamp in 1 until ONE_TRILLION) timestamp * NANOS_PER_MILLISECOND else timestamp
+
+    private fun shellQuote(value: String): String =
+        "'${value.replace("'", "'\\''")}'"
 
     companion object {
         private const val SAMPLE_INTERVAL_MS = 500L
         private const val FOREGROUND_CHECK_INTERVAL_MS = 1_000L
         private const val GFXINFO_SAMPLE_INTERVAL_MS = 1_000L
-        private const val GFXINFO_FRAME_COMPLETED_COLUMN = 16
+        private const val GFXINFO_DEFAULT_FRAME_COMPLETED_COLUMN = 16
         private const val RECENT_FRAME_WINDOW_NANOS = 1_000_000_000L
+        private const val ONE_TRILLION = 1_000_000_000_000L
+        private const val NANOS_PER_MILLISECOND = 1_000_000L
         private val FOREGROUND_PACKAGE_REGEX = Regex("(?:mFocusedApp|mCurrentFocus)=.*?\\bu\\d+\\s+([A-Za-z0-9._]+?)/")
         // SurfaceFlinger latency rows are:
         // desired-present-time, actual-present-time, frame-ready-time.
@@ -285,6 +308,11 @@ class FpsMonitor @Inject constructor(
             "Screenshot",
             "ColorFade"
         )
+    }
+
+    private enum class FpsBackend {
+        SURFACE_FLINGER,
+        GFXINFO
     }
 }
 

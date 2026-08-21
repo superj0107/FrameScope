@@ -141,7 +141,7 @@ Shizuku is still supported for users who already have it installed. Start Shizuk
 
 ## How FPS is measured
 
-FrameScope measures frame rates from the Android rendering pipeline using privileged IPC calls. It uses `SurfaceFlinger --latency` where the device exposes valid presentation timestamps; on the tested Android 8.1 firmware, where that command returns `0 0 0`, it automatically falls back to `dumpsys gfxinfo <foreground-package> framestats` and counts completed frames in a rolling one-second window. A static page can correctly show **0 FPS** because no new application frame was rendered; swipe, animate, or play video to measure active rendering. The monitor does not cap the value at 60.
+FrameScope measures frame rates from the Android rendering pipeline using privileged IPC calls. It probes `SurfaceFlinger --latency` at runtime on every Android version and device; if the ROM does not expose valid presentation timestamps (for example, the tested firmware returns `0 0 0`), it automatically falls back to `dumpsys gfxinfo <foreground-package> framestats`. The fallback detects the `FrameCompleted` column from the device's own header and counts completed frames in a rolling one-second window. A static page can correctly show **0 FPS** because no new application frame was rendered; swipe, animate, or play video to measure active rendering. The monitor does not cap the value at 60.
 
 ![FPS Architecture Diagram](docs/assets/fps_measurement_architecture.svg)
 

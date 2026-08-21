@@ -135,7 +135,7 @@ Set-ExecutionPolicy -Scope Process Bypass
 
 ## FPS 测量原理
 
-FrameScope 通过 FrameScope Bridge 或 Shizuku 提供的特权调用读取 Android 渲染管线数据：设备能提供有效呈现时间戳时使用 `SurfaceFlinger --latency`；在实测 Android 8.1 固件上，如果该命令返回 `0 0 0`，会自动切换到 `dumpsys gfxinfo <前台应用包名> framestats`，统计最近 1 秒内真正完成的帧数。静止页面没有新渲染帧时显示 **0 FPS** 是正常的；滑动页面、播放视频或运行动画后再观察。数值不会被强制限制为 60。
+FrameScope 通过 FrameScope Bridge 或 Shizuku 提供的特权调用读取 Android 渲染管线数据。它会在每个 Android 版本和每台设备上运行时探测 `SurfaceFlinger --latency`；如果 ROM 没有提供有效呈现时间戳（例如实测固件返回 `0 0 0`），就自动切换到 `dumpsys gfxinfo <前台应用包名> framestats`。备用方案会读取设备自己输出的 `FrameCompleted` 表头来确定列位置，并统计最近 1 秒内真正完成的帧数。静止页面没有新渲染帧时显示 **0 FPS** 是正常的；滑动页面、播放视频或运行动画后再观察。数值不会被强制限制为 60。
 
 ![FPS 测量架构图](docs/assets/fps_measurement_architecture.svg)
 
