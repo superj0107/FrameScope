@@ -13,6 +13,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.framescope.app.ui.screens.performance.components.RequirementRow
+import com.framescope.app.i18n.tr
 
 @Composable
 fun RequirementsSection(
@@ -25,7 +26,7 @@ fun RequirementsSection(
     val context = LocalContext.current
     Column(modifier = Modifier.padding(horizontal = 24.dp)) {
         Text(
-            "REQUIREMENTS & STATUS",
+            tr("REQUIREMENTS & STATUS"),
             style = MaterialTheme.typography.labelSmall,
             color = Color.Gray,
             modifier = Modifier.padding(bottom = 10.dp, start = 4.dp)

@@ -1,5 +1,7 @@
 package com.framescope.app.ui.components
 
+import com.framescope.app.i18n.tr
+
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -190,7 +192,7 @@ fun UpdateDialog(
                                 contentColor = Color(0xFFEF4444)
                             )
                         ) {
-                            Text("Cancel Download", fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                            Text(tr("Cancel Download"), fontWeight = FontWeight.Bold, fontSize = 13.sp)
                         }
                     } else {
                         Button(
@@ -211,7 +213,7 @@ fun UpdateDialog(
                                 contentColor = Color.White
                             )
                         ) {
-                            Text("Download & Install", fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                            Text(tr("Download & Install"), fontWeight = FontWeight.Bold, fontSize = 13.sp)
                         }
                     }
 
@@ -224,7 +226,7 @@ fun UpdateDialog(
                         border = BorderStroke(1.dp, Color.White.copy(0.12f)),
                         enabled = downloadState !is DownloadState.Downloading && downloadState !is DownloadState.VerifyingSha
                     ) {
-                        Text("Remind Me Later", color = Color.White.copy(0.8f), fontSize = 13.sp)
+                        Text(tr("Remind Me Later"), color = Color.White.copy(0.8f), fontSize = 13.sp)
                     }
                 }
             }

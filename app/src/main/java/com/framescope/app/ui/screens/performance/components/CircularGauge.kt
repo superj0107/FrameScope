@@ -20,6 +20,7 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.framescope.app.i18n.tr
 
 @Composable
 fun CircularGauge(
@@ -72,7 +73,7 @@ fun CircularGauge(
             }
             Spacer(modifier = Modifier.height(10.dp))
             Text(
-                text = label,
+                text = tr(label),
                 style = MaterialTheme.typography.labelSmall,
                 color = Color.Gray,
                 fontWeight = FontWeight.Bold

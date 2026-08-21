@@ -1,5 +1,7 @@
 package com.framescope.app.ui.screens.thermal.components
 
+import com.framescope.app.i18n.tr
+
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
@@ -86,7 +88,7 @@ fun ModernInteractiveGraph(
         contentAlignment = Alignment.Center
     ) {
         if (snapshots.size < 2) {
-            Text("Collecting telemetry samples...", color = Color.Gray, style = MaterialTheme.typography.bodyMedium)
+            Text(tr("Collecting telemetry samples..."), color = Color.Gray, style = MaterialTheme.typography.bodyMedium)
         } else {
             val textMeasurer = rememberTextMeasurer()
             val density = LocalDensity.current

@@ -1,5 +1,7 @@
 package com.framescope.app.ui.screens.performance.sections
 
+import com.framescope.app.i18n.tr
+
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -43,7 +45,7 @@ fun StorageAndPingCard(
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(Icons.Default.Bolt, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(16.dp))
                     Spacer(modifier = Modifier.width(6.dp))
-                    Text("STORAGE", color = Color.Gray, style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold)
+                    Text(tr("STORAGE"), color = Color.Gray, style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold)
                 }
                 Spacer(modifier = Modifier.height(8.dp))
                 Row(verticalAlignment = Alignment.Bottom) {
@@ -52,7 +54,7 @@ fun StorageAndPingCard(
                     Text("/ ${storageInfo.second} GB", color = Color.Gray, fontSize = 12.sp)
                 }
                 Spacer(modifier = Modifier.height(4.dp))
-                Text("${storageInfo.third} GB FREE", color = MaterialTheme.colorScheme.primary, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                Text("${storageInfo.third} GB ${tr("FREE")}", color = MaterialTheme.colorScheme.primary, fontSize = 11.sp, fontWeight = FontWeight.Bold)
                 Spacer(modifier = Modifier.height(12.dp))
                 LinearProgressIndicator(
                     progress = { if (storageInfo.second > 0) storageInfo.first.toFloat() / storageInfo.second else 0f },
@@ -71,7 +73,7 @@ fun StorageAndPingCard(
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(Icons.Default.NetworkCheck, contentDescription = null, tint = Color(0xFF10B981), modifier = Modifier.size(16.dp))
                     Spacer(modifier = Modifier.width(6.dp))
-                    Text("PING", color = Color.Gray, style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold)
+                    Text(tr("PING"), color = Color.Gray, style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold)
                 }
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
@@ -87,7 +89,7 @@ fun StorageAndPingCard(
                     currentPing < 75 -> "GOOD"
                     else -> "POOR"
                 }
-                Text(pingQualitative, color = if (currentPing < 75 && currentPing > 0) Color(0xFF10B981) else Color.Red, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                Text(tr(pingQualitative), color = if (currentPing < 75 && currentPing > 0) Color(0xFF10B981) else Color.Red, fontSize = 11.sp, fontWeight = FontWeight.Bold)
                 Spacer(modifier = Modifier.height(8.dp))
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(2.dp),

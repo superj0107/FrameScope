@@ -23,6 +23,7 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.framescope.app.repository.SettingsRepository
+import com.framescope.app.i18n.tr
 import com.framescope.app.ui.components.SignatureMismatchDialog
 import com.framescope.app.ui.components.UpdateDialog
 import com.framescope.app.update.AppUpdateInfo
@@ -154,19 +155,19 @@ fun SplashScreen(
         ) {
             Image(
                 painter = painterResource(id = com.framescope.app.R.mipmap.ic_launcher),
-                contentDescription = "App Logo",
+                contentDescription = tr("App Logo"),
                 modifier = Modifier.size(100.dp)
             )
             Spacer(modifier = Modifier.height(24.dp))
             Text(
-                text = "FrameScope",
+                text = tr("FrameScope"),
                 color = Color.White,
                 fontSize = 40.sp,
                 fontWeight = FontWeight.Bold,
                 letterSpacing = (-1).sp
             )
             Text(
-                text = "PERFORMANCE SUITE",
+                text = tr("PERFORMANCE SUITE"),
                 color = Color.White.copy(alpha = 0.4f),
                 fontSize = 12.sp,
                 fontWeight = FontWeight.Medium,
@@ -197,7 +198,7 @@ fun SplashScreen(
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = "Checking for updates...",
+                        text = tr("Checking for updates..."),
                         color = Color.White.copy(alpha = 0.5f),
                         fontSize = 11.sp,
                         fontWeight = FontWeight.Medium
@@ -206,7 +207,7 @@ fun SplashScreen(
             }
 
             Text(
-                text = "Powered by Shizuku",
+                text = tr("Powered by Shizuku"),
                 color = Color.White.copy(alpha = 0.6f),
                 fontSize = 12.sp,
                 fontWeight = FontWeight.Light,

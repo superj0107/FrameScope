@@ -12,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.framescope.app.ui.screens.performance.components.SwipeToActivate
+import com.framescope.app.i18n.tr
 
 @Composable
 fun OptimizationSlidersSection(
@@ -27,7 +28,7 @@ fun OptimizationSlidersSection(
 ) {
     Column(modifier = Modifier.padding(horizontal = 24.dp)) {
         Text(
-            "OPTIMIZATION",
+            tr("OPTIMIZATION"),
             style = MaterialTheme.typography.labelSmall,
             color = Color.Gray,
             modifier = Modifier.padding(bottom = 12.dp, start = 4.dp)

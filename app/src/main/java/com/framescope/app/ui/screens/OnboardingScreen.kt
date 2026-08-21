@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
 import com.framescope.app.repository.SettingsRepository
+import com.framescope.app.i18n.tr
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -68,13 +69,13 @@ fun OnboardingScreen(
         ) {
             androidx.compose.foundation.Image(
                 painter = painterResource(id = com.framescope.app.R.mipmap.ic_launcher),
-                contentDescription = "App Logo",
+                contentDescription = tr("App Logo"),
                 modifier = Modifier
                     .size(32.dp)
                     .clip(RoundedCornerShape(8.dp))
             )
             Spacer(modifier = Modifier.width(8.dp))
-            Text("FrameScope", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = Color.White)
+            Text(tr("FrameScope"), fontSize = 20.sp, fontWeight = FontWeight.Bold, color = Color.White)
         }
 
         // Pager
@@ -107,7 +108,7 @@ fun OnboardingScreen(
                 Spacer(modifier = Modifier.height(32.dp))
                 
                 Text(
-                    text = OnboardingPages[page].first,
+                    text = tr(OnboardingPages[page].first),
                     fontSize = 28.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color.White,
@@ -116,7 +117,7 @@ fun OnboardingScreen(
                 )
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(
-                    text = OnboardingPages[page].second,
+                    text = tr(OnboardingPages[page].second),
                     fontSize = 16.sp,
                     color = Color.Gray,
                     textAlign = TextAlign.Center,
@@ -154,7 +155,7 @@ fun OnboardingScreen(
                     viewModel.completeOnboarding()
                     onFinishOnboarding()
                 }) {
-                    Text("Skip", color = Color.Gray, fontWeight = FontWeight.SemiBold)
+                    Text(tr("Skip"), color = Color.Gray, fontWeight = FontWeight.SemiBold)
                 }
                 Spacer(modifier = Modifier.width(8.dp))
                 Button(
@@ -170,7 +171,7 @@ fun OnboardingScreen(
                     shape = CircleShape,
                     contentPadding = PaddingValues(horizontal = 24.dp, vertical = 12.dp)
                 ) {
-                    Text(if (pagerState.currentPage == OnboardingPages.size - 1) "Start" else "Next", fontWeight = FontWeight.Bold)
+                    Text(tr(if (pagerState.currentPage == OnboardingPages.size - 1) "Start" else "Next"), fontWeight = FontWeight.Bold)
                     Spacer(modifier = Modifier.width(8.dp))
                     Icon(Icons.Default.ArrowForward, contentDescription = null, modifier = Modifier.size(18.dp))
                 }
@@ -178,4 +179,3 @@ fun OnboardingScreen(
         }
     }
 }
-

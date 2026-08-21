@@ -24,6 +24,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
+import com.framescope.app.i18n.tr
 
 @Composable
 fun SwipeToActivate(
@@ -123,10 +124,10 @@ fun SwipeToActivate(
                 val textAlpha = ((maxDrag - animatedOffset) / maxDrag).coerceIn(0f, 1f)
                 Text(
                     text = when {
-                        isBusy -> busyText
-                        showResult -> resultText
-                        isCompleted -> "DONE"
-                        else -> text
+                        isBusy -> tr(busyText)
+                        showResult -> tr(resultText)
+                        isCompleted -> tr("DONE")
+                        else -> tr(text)
                     },
                     color = Color.White.copy((0.6f * textAlpha).coerceIn(0f, 1f)),
                     style = MaterialTheme.typography.bodyMedium.copy(

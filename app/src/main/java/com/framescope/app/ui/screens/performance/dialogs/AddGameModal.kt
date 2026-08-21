@@ -1,5 +1,7 @@
 package com.framescope.app.ui.screens.performance.dialogs
 
+import com.framescope.app.i18n.tr
+
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -56,13 +58,13 @@ fun AddGameModal(
         ) {
             Column(modifier = Modifier.padding(24.dp)) {
                 Text(
-                    "Add Games",
+                    tr("Add Games"),
                     style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
                     color = Color.White
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    "Select the apps you want to display in the game launcher.",
+                    tr("Select the apps you want to display in the game launcher."),
                     color = Color.Gray,
                     fontSize = 12.sp
                 )
@@ -149,7 +151,7 @@ fun AddGameModal(
                         .fillMaxWidth()
                         .height(48.dp)
                 ) {
-                    Text("Done", fontWeight = FontWeight.Bold)
+                    Text(tr("Done"), fontWeight = FontWeight.Bold)
                 }
             }
         }

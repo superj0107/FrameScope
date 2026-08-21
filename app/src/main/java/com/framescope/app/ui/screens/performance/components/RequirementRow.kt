@@ -17,6 +17,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.framescope.app.i18n.tr
 
 @Composable
 fun RequirementRow(
@@ -54,8 +55,8 @@ fun RequirementRow(
         }
         Spacer(modifier = Modifier.width(12.dp))
         Column(modifier = Modifier.weight(1f)) {
-            Text(label, color = Color.White, fontWeight = FontWeight.SemiBold, fontSize = 13.sp)
-            Text(description, color = Color.Gray, fontSize = 11.sp)
+            Text(tr(label), color = Color.White, fontWeight = FontWeight.SemiBold, fontSize = 13.sp)
+            Text(tr(description), color = Color.Gray, fontSize = 11.sp)
         }
         if (!satisfied && onAction != null) {
             Button(
@@ -65,7 +66,7 @@ fun RequirementRow(
                 contentPadding = PaddingValues(horizontal = 14.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
             ) {
-                Text(actionLabel, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                Text(tr(actionLabel), fontSize = 11.sp, fontWeight = FontWeight.Bold)
             }
         }
     }

@@ -1,5 +1,7 @@
 package com.framescope.app.ui.screens.thermal
 
+import com.framescope.app.i18n.tr
+
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
@@ -180,11 +182,11 @@ fun ThermalDiagnosticsScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 IconButton(onClick = onNavigateBack) {
-                    Icon(Icons.Default.ArrowBackIosNew, contentDescription = "Back", tint = Color.White)
+                    Icon(Icons.Default.ArrowBackIosNew, contentDescription = tr("Back"), tint = Color.White)
                 }
                 Column {
-                    Text("Thermal Diagnostics", style = MaterialTheme.typography.titleMedium, color = Color.White)
-                    Text("Real-time hardware telemetry & root cause analysis", style = MaterialTheme.typography.bodySmall, color = Color.Gray)
+                    Text(tr("Thermal Diagnostics"), style = MaterialTheme.typography.titleMedium, color = Color.White)
+                    Text(tr("Real-time hardware telemetry & root cause analysis"), style = MaterialTheme.typography.bodySmall, color = Color.Gray)
                 }
             }
 
@@ -231,7 +233,7 @@ fun ThermalDiagnosticsScreen(
                                     modifier = Modifier.height(36.dp),
                                     shape = CircleShape
                                 ) {
-                                    Text("Open Shizuku", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                                    Text(tr("Open Shizuku"), fontSize = 12.sp, fontWeight = FontWeight.Bold)
                                 }
                                 if (isShizukuAvailable && !hasShizukuPermission) {
                                     Button(
@@ -239,7 +241,7 @@ fun ThermalDiagnosticsScreen(
                                         modifier = Modifier.height(36.dp),
                                         shape = CircleShape
                                     ) {
-                                        Text("Grant Permission", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                                        Text(tr("Grant Permission"), fontSize = 12.sp, fontWeight = FontWeight.Bold)
                                     }
                                 }
                             }
@@ -400,7 +402,7 @@ fun ThermalDiagnosticsScreen(
                 Spacer(modifier = Modifier.height(24.dp))
 
                 // 4. Interactive Graph Section with Exposed Dropdowns
-                Text("Performance & Thermal Timeline", style = MaterialTheme.typography.titleSmall, color = Color.White, fontWeight = FontWeight.Bold)
+                Text(tr("Performance & Thermal Timeline"), style = MaterialTheme.typography.titleSmall, color = Color.White, fontWeight = FontWeight.Bold)
                 Text(
                     "Select timeframe and metrics, then drag across the canvas to scrub telemetry.",
                     style = MaterialTheme.typography.bodySmall,
@@ -424,7 +426,7 @@ fun ThermalDiagnosticsScreen(
                             value = selectedWindow.label,
                             onValueChange = {},
                             readOnly = true,
-                            label = { Text("Timeframe", fontSize = 11.sp) },
+                            label = { Text(tr("Timeframe"), fontSize = 11.sp) },
                             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = timeDropdownExpanded) },
                             colors = dropdownFieldColors(),
                             shape = RoundedCornerShape(12.dp),
@@ -459,7 +461,7 @@ fun ThermalDiagnosticsScreen(
                             value = selectedGraphMode.label,
                             onValueChange = {},
                             readOnly = true,
-                            label = { Text("Graph Mode", fontSize = 11.sp) },
+                            label = { Text(tr("Graph Mode"), fontSize = 11.sp) },
                             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = modeDropdownExpanded) },
                             colors = dropdownFieldColors(),
                             shape = RoundedCornerShape(12.dp),
@@ -531,7 +533,7 @@ fun ThermalDiagnosticsScreen(
                 Spacer(modifier = Modifier.height(28.dp))
 
                 // 6. Action Buttons Layout with Restored Green "Ready to Export" Banner
-                Text("Session Recording & Export", style = MaterialTheme.typography.titleSmall, color = Color.White, fontWeight = FontWeight.Bold)
+                Text(tr("Session Recording & Export"), style = MaterialTheme.typography.titleSmall, color = Color.White, fontWeight = FontWeight.Bold)
                 Text(
                     "Capture gaming telemetry logs or copy a Markdown report for GitHub issues.",
                     style = MaterialTheme.typography.bodySmall,
@@ -551,7 +553,7 @@ fun ThermalDiagnosticsScreen(
                     ) {
                         Icon(Icons.Default.FiberManualRecord, contentDescription = null, tint = Color(0xFFEF4444), modifier = Modifier.size(12.dp))
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text("Recording — ${sampleCount}s captured", color = Color.White, fontWeight = FontWeight.Bold)
+                        Text("${tr("Recording")} — ${sampleCount}s ${tr("captured")}", color = Color.White, fontWeight = FontWeight.Bold)
                     }
                     Spacer(modifier = Modifier.height(12.dp))
                 } else if (sampleCount > 0) {
@@ -565,7 +567,7 @@ fun ThermalDiagnosticsScreen(
                     ) {
                         Icon(Icons.Default.FiberManualRecord, contentDescription = null, tint = Color(0xFF34D399), modifier = Modifier.size(12.dp))
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text("Last Session — ${sampleCount}s ready to export", color = Color.White, fontWeight = FontWeight.Bold)
+                        Text("${tr("Last Session")} — ${sampleCount}s ${tr("ready to export")}", color = Color.White, fontWeight = FontWeight.Bold)
                     }
                     Spacer(modifier = Modifier.height(12.dp))
                 }
@@ -581,7 +583,7 @@ fun ThermalDiagnosticsScreen(
                 ) {
                     Icon(if (isRecording) Icons.Default.Stop else Icons.Default.FiberManualRecord, contentDescription = null, modifier = Modifier.size(16.dp))
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text(if (isRecording) "Stop Session Recording" else "Start Session Recording", fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                    Text(tr(if (isRecording) "Stop Session Recording" else "Start Session Recording"), fontWeight = FontWeight.Bold, fontSize = 13.sp)
                 }
 
                 Spacer(modifier = Modifier.height(10.dp))
@@ -600,22 +602,22 @@ fun ThermalDiagnosticsScreen(
                     ) {
                         Icon(Icons.Default.IosShare, contentDescription = null, modifier = Modifier.size(15.dp))
                         Spacer(modifier = Modifier.width(6.dp))
-                        Text("Export CSV", fontSize = 12.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                        Text(tr("Export CSV"), fontSize = 12.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
                     }
 
                     OutlinedButton(
                         onClick = {
                             val summary = viewModel.buildDiagnosticSummaryText(snapshotHistory)
                             val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-                            clipboard.setPrimaryClip(ClipData.newPlainText("FrameScope Diagnostic Summary", summary))
-                            Toast.makeText(context, "Diagnostic summary copied to clipboard!", Toast.LENGTH_LONG).show()
+                             clipboard.setPrimaryClip(ClipData.newPlainText(com.framescope.app.i18n.trStatic("FrameScope Diagnostic Summary"), summary))
+                             Toast.makeText(context, com.framescope.app.i18n.trStatic("Diagnostic summary copied to clipboard!"), Toast.LENGTH_LONG).show()
                         },
                         modifier = Modifier.weight(1f).height(46.dp),
                         shape = RoundedCornerShape(12.dp)
                     ) {
                         Icon(Icons.Default.ContentCopy, contentDescription = null, modifier = Modifier.size(15.dp))
                         Spacer(modifier = Modifier.width(6.dp))
-                        Text("Copy Report", fontSize = 12.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                        Text(tr("Copy Report"), fontSize = 12.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
                     }
                 }
 

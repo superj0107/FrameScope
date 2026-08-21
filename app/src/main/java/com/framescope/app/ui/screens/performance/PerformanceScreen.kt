@@ -1,5 +1,8 @@
 package com.framescope.app.ui.screens.performance
 
+import com.framescope.app.i18n.tr
+import com.framescope.app.i18n.trStatic
+
 import android.app.NotificationManager
 import android.content.Context
 import android.os.Environment
@@ -148,11 +151,11 @@ fun PerformanceScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = Color.White)
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = tr("Back"), tint = Color.White)
                     }
                     Spacer(modifier = Modifier.weight(1f))
                     Text(
-                        "Performance",
+                        tr("Performance"),
                         style = MaterialTheme.typography.titleMedium,
                         color = Color.White
                     )
@@ -222,7 +225,7 @@ fun PerformanceScreen(
                             val (freed, stopped) = viewModel.manualBoostRam(whitelist)
                             isBoostingRam = false
                             showRamResult = true
-                            showRamSuccessBanner = "Boosted! Freed $freed MB, stopped $stopped apps"
+                            showRamSuccessBanner = "${trStatic("Boosted! Freed")} $freed MB, ${trStatic("stopped")} $stopped ${trStatic("apps")}"
                             delay(2500)
                             showRamResult = false
                             delay(300)
@@ -236,7 +239,7 @@ fun PerformanceScreen(
                             isOptimizingNet = false
                             showPingResult = true
                             activeLatencyDiagnostic = pingRes ?: 0
-                            showRamSuccessBanner = if (pingRes != null) "Latency check complete: $pingRes ms" else "Latency check failed: network unreachable"
+                            showRamSuccessBanner = if (pingRes != null) "${trStatic("Latency check complete")}: $pingRes ms" else trStatic("Latency check failed: network unreachable")
                             delay(2500)
                             showPingResult = false
                             delay(300)
@@ -249,7 +252,7 @@ fun PerformanceScreen(
                             val resetOk = viewModel.resetToDeviceDefaults()
                             isResettingDefaults = false
                             showResetResult = true
-                            showRamSuccessBanner = if (resetOk) "Device settings reset to OS defaults" else "Device reset partially completed"
+                            showRamSuccessBanner = if (resetOk) trStatic("Device settings reset to OS defaults") else trStatic("Device reset partially completed")
                             delay(2500)
                             showResetResult = false
                             delay(300)
@@ -346,7 +349,7 @@ fun PerformanceScreen(
                     viewModel.launchGameWithOptimizations(context, tPkg) { freed ->
                         activeDeployingGamePkg = null
                         scope.launch {
-                            showRamSuccessBanner = "Game boosted successfully! Freed $freed MB of RAM"
+                            showRamSuccessBanner = "${trStatic("Game boosted successfully! Freed")} $freed MB ${trStatic("of RAM")}"
                             delay(2500)
                             showRamSuccessBanner = null
                         }

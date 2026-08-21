@@ -8,6 +8,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.framescope.app.ui.screens.performance.components.CircularGauge
+import com.framescope.app.i18n.tr
 
 @Composable
 fun SystemHealthGaugesSection(
@@ -16,7 +17,7 @@ fun SystemHealthGaugesSection(
 ) {
     Column(modifier = Modifier.padding(horizontal = 24.dp)) {
         Text(
-            "SYSTEM HEALTH",
+            tr("SYSTEM HEALTH"),
             style = MaterialTheme.typography.labelSmall,
             color = Color.Gray,
             modifier = Modifier.padding(bottom = 12.dp, start = 4.dp)

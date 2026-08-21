@@ -1,5 +1,7 @@
 package com.framescope.app.ui.featurediscovery.components
 
+import com.framescope.app.i18n.tr
+
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -199,7 +201,7 @@ private fun SetupGuideModal(
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Close,
-                                contentDescription = "Dismiss",
+                                contentDescription = tr("Dismiss"),
                                 tint = Color.White.copy(alpha = 0.8f),
                                 modifier = Modifier.size(18.dp)
                             )

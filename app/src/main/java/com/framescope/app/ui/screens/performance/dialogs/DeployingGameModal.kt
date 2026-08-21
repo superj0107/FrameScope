@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import com.framescope.app.i18n.tr
 import kotlinx.coroutines.delay
 
 @Composable
@@ -32,11 +33,11 @@ fun DeployingGameModal(
 
     LaunchedEffect(pkg) {
         val phases = listOf(
-            "Muting system alerts..." to 0.15f,
-            "Clearing redundant caches..." to 0.45f,
-            "Freeing active RAM..." to 0.7f,
-            "Applying settings overrides..." to 0.85f,
-            "Launching game sandbox..." to 1.0f
+                    "Muting system alerts..." to 0.15f,
+                    "Clearing redundant caches..." to 0.45f,
+                    "Freeing active RAM..." to 0.7f,
+                    "Applying settings overrides..." to 0.85f,
+                    "Launching game sandbox..." to 1.0f
         )
         for (p in phases) {
             currentPhrase = p.first
@@ -89,7 +90,7 @@ fun DeployingGameModal(
                 Spacer(modifier = Modifier.height(24.dp))
 
                 Text(
-                    "DEPLOYING OPTIMIZATIONS",
+                    tr("DEPLOYING OPTIMIZATIONS"),
                     style = MaterialTheme.typography.labelSmall.copy(
                         fontWeight = FontWeight.Bold,
                         letterSpacing = 2.sp
@@ -100,7 +101,7 @@ fun DeployingGameModal(
                 Spacer(modifier = Modifier.height(8.dp))
 
                 Text(
-                    currentPhrase,
+                    tr(currentPhrase),
                     style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
                     color = Color.White,
                     textAlign = TextAlign.Center
@@ -121,7 +122,7 @@ fun DeployingGameModal(
                 Spacer(modifier = Modifier.height(24.dp))
 
                 Text(
-                    "System resources are being reallocated for peak gaming stability and performance.",
+                    tr("System resources are being reallocated for peak gaming stability and performance."),
                     style = MaterialTheme.typography.bodySmall,
                     color = Color.Gray,
                     textAlign = TextAlign.Center

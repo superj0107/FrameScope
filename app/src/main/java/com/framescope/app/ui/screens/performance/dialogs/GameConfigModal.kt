@@ -1,5 +1,7 @@
 package com.framescope.app.ui.screens.performance.dialogs
 
+import com.framescope.app.i18n.tr
+
 import android.content.Intent
 import android.net.Uri
 import android.provider.Settings
@@ -126,14 +128,14 @@ fun GameConfigModal(
                 }
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(
-                    "The following configuration will change automatically when the game starts.",
+                    tr("The following configuration will change automatically when the game starts."),
                     color = Color.Gray,
                     fontSize = 12.sp
                 )
                 Spacer(modifier = Modifier.height(20.dp))
 
                 Text(
-                    "ENGINE OPTIMIZATIONS",
+                    tr("ENGINE OPTIMIZATIONS"),
                     style = MaterialTheme.typography.labelSmall,
                     color = Color.Gray
                 )
@@ -154,13 +156,13 @@ fun GameConfigModal(
                     Spacer(modifier = Modifier.width(12.dp))
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
-                            "Boost RAM",
+                            tr("Boost RAM"),
                             color = Color.White,
                             fontWeight = FontWeight.SemiBold,
                             fontSize = 14.sp
                         )
                         Text(
-                            "Force-stop background activities",
+                            tr("Force-stop background activities"),
                             color = Color.Gray,
                             fontSize = 11.sp
                         )
@@ -193,13 +195,13 @@ fun GameConfigModal(
                     Spacer(modifier = Modifier.width(12.dp))
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
-                            "Disable auto brightness",
+                            tr("Disable auto brightness"),
                             color = Color.White,
                             fontWeight = FontWeight.SemiBold,
                             fontSize = 14.sp
                         )
                         Text(
-                            "Lock brightness at current level",
+                            tr("Lock brightness at current level"),
                             color = Color.Gray,
                             fontSize = 11.sp
                         )
@@ -240,13 +242,13 @@ fun GameConfigModal(
                     Spacer(modifier = Modifier.width(12.dp))
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
-                            "Disable auto rotate",
+                            tr("Disable auto rotate"),
                             color = Color.White,
                             fontWeight = FontWeight.SemiBold,
                             fontSize = 14.sp
                         )
                         Text(
-                            "Lock display in landscape mode",
+                            tr("Lock display in landscape mode"),
                             color = Color.Gray,
                             fontSize = 11.sp
                         )
@@ -282,7 +284,7 @@ fun GameConfigModal(
                     )
                     Spacer(modifier = Modifier.width(12.dp))
                     Text(
-                        "Change ringtone volume",
+                        tr("Change ringtone volume"),
                         color = Color.White,
                         fontWeight = FontWeight.SemiBold,
                         fontSize = 14.sp
@@ -314,7 +316,7 @@ fun GameConfigModal(
                         .fillMaxWidth()
                         .height(52.dp)
                 ) {
-                    Text("BOOST", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                    Text(tr("BOOST"), fontWeight = FontWeight.Bold, fontSize = 16.sp)
                 }
             }
         }

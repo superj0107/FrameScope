@@ -64,6 +64,7 @@ FrameScope 可在任意应用或全屏游戏上方显示可自定义、低开销
 ## 使用要求
 
 - Android 8.0（API 26）或更高版本
+- App 内支持 English 和简体中文；首次启动会跟随系统语言，也可以在 **关于与法律信息 → 语言** 中手动切换
 - 已安装并运行 [Shizuku](https://github.com/RikkaApps/Shizuku)
 - Android 11 及以上可通过无线调试激活，无需电脑；也可以使用 ADB 激活
 - Root 设备可配合 Sui 模块使用

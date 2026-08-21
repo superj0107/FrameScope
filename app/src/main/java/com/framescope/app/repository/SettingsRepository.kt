@@ -3,6 +3,8 @@ package com.framescope.app.repository
 import android.content.Context
 import android.content.SharedPreferences
 import dagger.hilt.android.qualifiers.ApplicationContext
+import com.framescope.app.i18n.AppLanguage
+import com.framescope.app.i18n.loadInitialLanguage
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -14,6 +16,14 @@ class SettingsRepository @Inject constructor(
     @ApplicationContext context: Context
 ) {
     private val prefs: SharedPreferences = context.getSharedPreferences("framescope_settings", Context.MODE_PRIVATE)
+
+    private val _appLanguage = MutableStateFlow(loadInitialLanguage(context))
+    val appLanguage: StateFlow<AppLanguage> = _appLanguage.asStateFlow()
+
+    fun setAppLanguage(language: AppLanguage) {
+        prefs.edit().putString(KEY_APP_LANGUAGE, language.code).apply()
+        _appLanguage.value = language
+    }
 
     private val _overlayMode = MutableStateFlow(prefs.getString(KEY_OVERLAY_MODE, "Compact") ?: "Compact")
     val overlayMode: StateFlow<String> = _overlayMode.asStateFlow()
@@ -405,6 +415,7 @@ class SettingsRepository @Inject constructor(
 
     companion object {
         private const val KEY_OVERLAY_MODE = "overlay_mode"
+        private const val KEY_APP_LANGUAGE = "app_language"
         private const val KEY_THERMAL_TIME_WINDOW = "thermal_time_window"
         private const val KEY_THERMAL_GRAPH_MODE = "thermal_graph_mode"
         private const val DEFAULT_THERMAL_TIME_WINDOW = "SEC_60"

@@ -38,6 +38,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.framescope.app.shizuku.ShizukuManager
+import com.framescope.app.i18n.tr
 import com.framescope.app.ui.featurediscovery.DiscoveryScreenId
 import com.framescope.app.ui.featurediscovery.ScreenDiscoveryEffect
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -145,10 +146,10 @@ fun PermissionsScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 IconButton(onClick = onNavigateBack) {
-                    Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = Color.White)
+                    Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = tr("Back"), tint = Color.White)
                 }
                 Spacer(modifier = Modifier.weight(1f))
-                Text("System Status", style = MaterialTheme.typography.titleMedium, color = Color.White)
+                Text(tr("System Status"), style = MaterialTheme.typography.titleMedium, color = Color.White)
                 Spacer(modifier = Modifier.weight(1f))
                 Spacer(modifier = Modifier.width(48.dp)) // Optical centering
             }
@@ -160,10 +161,10 @@ fun PermissionsScreen(
                     .padding(horizontal = 24.dp)
             ) {
                 // Intro
-                Text("Setup FrameScope", style = MaterialTheme.typography.titleLarge.copy(fontSize = 28.sp), color = Color.White)
+                Text(tr("Setup FrameScope"), style = MaterialTheme.typography.titleLarge.copy(fontSize = 28.sp), color = Color.White)
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    text = "FrameScope needs specific permissions to monitor performance metrics like FPS, thermal stats, and power usage without root access.",
+                    text = tr("FrameScope needs specific permissions to monitor performance metrics like FPS, thermal stats, and power usage without root access."),
                     style = MaterialTheme.typography.bodyMedium,
                     color = Color.Gray
                 )
@@ -189,11 +190,11 @@ fun PermissionsScreen(
                                         .border(1.dp, Color(0xFF3D9BE0).copy(alpha = 0.28f), RoundedCornerShape(12.dp)),
                                     contentAlignment = Alignment.Center
                                 ) {
-                                    Text("ADB", color = Color(0xFF6EB8EE), fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                                    Text(tr("ADB"), color = Color(0xFF6EB8EE), fontWeight = FontWeight.Bold, fontSize = 13.sp)
                                 }
                                 Spacer(modifier = Modifier.width(12.dp))
                                 Column {
-                                    Text("Shizuku Service", color = Color.White, fontWeight = FontWeight.SemiBold, fontSize = 16.sp)
+                                    Text(tr("Shizuku Service"), color = Color.White, fontWeight = FontWeight.SemiBold, fontSize = 16.sp)
                                     Spacer(modifier = Modifier.height(2.dp))
                                     Row(
                                         modifier = Modifier.clip(CircleShape)
@@ -204,9 +205,9 @@ fun PermissionsScreen(
                                         Box(modifier = Modifier.size(5.dp).clip(CircleShape).background(if (isShizukuAvailable && hasShizukuPermission) Color(0xFF2FBF9F) else Color.Red))
                                         Spacer(modifier = Modifier.width(5.dp))
                                         Text(
-                                            if (isShizukuAvailable && hasShizukuPermission) "RUNNING & GRANTED" else if (isShizukuAvailable) "PERMISSION REQUIRED" else "NOT RUNNING", 
-                                            color = if (isShizukuAvailable && hasShizukuPermission) Color(0xFF2FBF9F) else Color.Red, 
-                                            fontSize = 10.sp, 
+                                            tr(if (isShizukuAvailable && hasShizukuPermission) "RUNNING & GRANTED" else if (isShizukuAvailable) "PERMISSION REQUIRED" else "NOT RUNNING"),
+                                            color = if (isShizukuAvailable && hasShizukuPermission) Color(0xFF2FBF9F) else Color.Red,
+                                            fontSize = 10.sp,
                                             fontWeight = FontWeight.Bold
                                         )
                                     }
@@ -214,7 +215,7 @@ fun PermissionsScreen(
                             }
                             Spacer(modifier = Modifier.height(16.dp))
                             Text(
-                                text = "The core bridge for non-root access. Please ensure Shizuku is running via ADB or Wireless Debugging.",
+                                text = tr("The core bridge for non-root access. Please ensure Shizuku is running via ADB or Wireless Debugging."),
                                 color = Color.White.copy(alpha = 0.6f),
                                 style = MaterialTheme.typography.bodySmall,
                                 fontSize = 12.5.sp
@@ -227,14 +228,14 @@ fun PermissionsScreen(
                                         if (intent != null) {
                                             context.startActivity(intent)
                                         } else {
-                                            android.widget.Toast.makeText(context, "Shizuku app not found", android.widget.Toast.LENGTH_SHORT).show()
+                                            android.widget.Toast.makeText(context, com.framescope.app.i18n.trStatic("Shizuku app not found"), android.widget.Toast.LENGTH_SHORT).show()
                                         }
                                     },
                                     modifier = Modifier.weight(1f).height(40.dp),
                                     shape = CircleShape,
                                     colors = ButtonDefaults.buttonColors(containerColor = Color.White.copy(0.08f), contentColor = Color.White)
                                 ) {
-                                    Text("Launch App", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                                    Text(tr("Launch App"), fontSize = 12.sp, fontWeight = FontWeight.Bold)
                                 }
                                 
                                 Button(
@@ -242,7 +243,7 @@ fun PermissionsScreen(
                                         if (isShizukuAvailable && !hasShizukuPermission) {
                                             viewModel.requestShizukuPermission()
                                         } else if (!isShizukuAvailable) {
-                                            android.widget.Toast.makeText(context, "Start Shizuku service first", android.widget.Toast.LENGTH_SHORT).show()
+                                            android.widget.Toast.makeText(context, com.framescope.app.i18n.trStatic("Start Shizuku service first"), android.widget.Toast.LENGTH_SHORT).show()
                                         }
                                     },
                                     modifier = Modifier.weight(1f).height(40.dp),
@@ -254,7 +255,7 @@ fun PermissionsScreen(
                                         disabledContentColor = Color.White
                                     )
                                 ) {
-                                    Text(if (hasShizukuPermission) "Authorized" else "Grant Access", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                                    Text(tr(if (hasShizukuPermission) "Authorized" else "Grant Access"), fontSize = 12.sp, fontWeight = FontWeight.Bold)
                                 }
                             }
                         }
@@ -263,7 +264,7 @@ fun PermissionsScreen(
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                Text("REQUIRED PERMISSIONS", style = MaterialTheme.typography.labelSmall, color = Color.Gray, modifier = Modifier.padding(bottom = 8.dp, start = 8.dp))
+                Text(tr("REQUIRED PERMISSIONS"), style = MaterialTheme.typography.labelSmall, color = Color.Gray, modifier = Modifier.padding(bottom = 8.dp, start = 8.dp))
 
                 // Permissions List
                 // 1. Overlay
@@ -276,8 +277,8 @@ fun PermissionsScreen(
                     }
                     Spacer(modifier = Modifier.width(12.dp))
                     Column(modifier = Modifier.weight(1f)) {
-                        Text("Overlay Permission", color = Color.White, fontWeight = FontWeight.Bold)
-                        Text("Required for the FPS counter overlay", color = Color.Gray, style = MaterialTheme.typography.bodySmall)
+                        Text(tr("Overlay Permission"), color = Color.White, fontWeight = FontWeight.Bold)
+                        Text(tr("Required for the FPS counter overlay"), color = Color.Gray, style = MaterialTheme.typography.bodySmall)
                     }
                     if (hasOverlayPermission) {
                         Box(modifier = Modifier.size(36.dp).clip(CircleShape).background(Color(0xFF10B981).copy(0.1f)), contentAlignment = Alignment.Center) {
@@ -293,7 +294,7 @@ fun PermissionsScreen(
                             shape = CircleShape, 
                             colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
                         ) {
-                            Text("Grant", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                            Text(tr("Grant"), fontSize = 12.sp, fontWeight = FontWeight.Bold)
                         }
                     }
                 }
@@ -310,8 +311,8 @@ fun PermissionsScreen(
                     }
                     Spacer(modifier = Modifier.width(12.dp))
                     Column(modifier = Modifier.weight(1f)) {
-                        Text("Usage Access", color = Color.White, fontWeight = FontWeight.Bold)
-                        Text("Read app-specific performance data", color = Color.Gray, style = MaterialTheme.typography.bodySmall)
+                        Text(tr("Usage Access"), color = Color.White, fontWeight = FontWeight.Bold)
+                        Text(tr("Read app-specific performance data"), color = Color.Gray, style = MaterialTheme.typography.bodySmall)
                     }
                     Button(
                         onClick = {
@@ -322,7 +323,7 @@ fun PermissionsScreen(
                         shape = CircleShape, 
                         colors = ButtonDefaults.buttonColors(containerColor = if (hasUsageStatsPermission) Color(0xFF10B981) else MaterialTheme.colorScheme.primary)
                     ) {
-                        Text(if (hasUsageStatsPermission) "Granted" else "Grant", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                        Text(tr(if (hasUsageStatsPermission) "Granted" else "Grant"), fontSize = 12.sp, fontWeight = FontWeight.Bold)
                     }
                 }
 
@@ -338,8 +339,8 @@ fun PermissionsScreen(
                     }
                     Spacer(modifier = Modifier.width(12.dp))
                     Column(modifier = Modifier.weight(1f)) {
-                        Text("Battery Optimization", color = Color.White, fontWeight = FontWeight.Bold)
-                        Text("Prevents OS from killing overlay", color = Color.Gray, style = MaterialTheme.typography.bodySmall)
+                        Text(tr("Battery Optimization"), color = Color.White, fontWeight = FontWeight.Bold)
+                        Text(tr("Prevents OS from killing overlay"), color = Color.Gray, style = MaterialTheme.typography.bodySmall)
                     }
                     if (hasBatteryOptDisabled) {
                         Box(modifier = Modifier.size(36.dp).clip(CircleShape).background(Color(0xFF10B981).copy(0.1f)), contentAlignment = Alignment.Center) {
@@ -359,7 +360,7 @@ fun PermissionsScreen(
                             shape = CircleShape,
                             colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
                         ) {
-                            Text("Disable", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                            Text(tr("Disable"), fontSize = 12.sp, fontWeight = FontWeight.Bold)
                         }
                     }
                 }
@@ -376,8 +377,8 @@ fun PermissionsScreen(
                     }
                     Spacer(modifier = Modifier.width(12.dp))
                     Column(modifier = Modifier.weight(1f)) {
-                        Text("Notifications", color = Color.White, fontWeight = FontWeight.Bold)
-                        Text("Shows overlay status and Gaming Mode recovery alerts", color = Color.Gray, style = MaterialTheme.typography.bodySmall)
+                        Text(tr("Notifications"), color = Color.White, fontWeight = FontWeight.Bold)
+                        Text(tr("Shows overlay status and Gaming Mode recovery alerts"), color = Color.Gray, style = MaterialTheme.typography.bodySmall)
                     }
                     if (hasNotificationPermission) {
                         Box(modifier = Modifier.size(36.dp).clip(CircleShape).background(Color(0xFF10B981).copy(0.1f)), contentAlignment = Alignment.Center) {
@@ -394,7 +395,7 @@ fun PermissionsScreen(
                             shape = CircleShape,
                             colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
                         ) {
-                            Text("Grant", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                            Text(tr("Grant"), fontSize = 12.sp, fontWeight = FontWeight.Bold)
                         }
                     }
                 }
@@ -411,8 +412,8 @@ fun PermissionsScreen(
                     }
                     Spacer(modifier = Modifier.width(12.dp))
                     Column(modifier = Modifier.weight(1f)) {
-                        Text("Write System Settings", color = Color.White, fontWeight = FontWeight.Bold)
-                        Text("Required to toggle auto-brightness & rotation", color = Color.Gray, style = MaterialTheme.typography.bodySmall)
+                        Text(tr("Write System Settings"), color = Color.White, fontWeight = FontWeight.Bold)
+                        Text(tr("Required to toggle auto-brightness & rotation"), color = Color.Gray, style = MaterialTheme.typography.bodySmall)
                     }
                     if (hasWriteSettingsPermission) {
                         Box(modifier = Modifier.size(36.dp).clip(CircleShape).background(Color(0xFF10B981).copy(0.1f)), contentAlignment = Alignment.Center) {
@@ -428,7 +429,7 @@ fun PermissionsScreen(
                             shape = CircleShape,
                             colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
                         ) {
-                            Text("Grant", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                            Text(tr("Grant"), fontSize = 12.sp, fontWeight = FontWeight.Bold)
                         }
                     }
                 }
@@ -443,10 +444,10 @@ fun PermissionsScreen(
                     Icon(Icons.Default.Info, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(20.dp))
                     Spacer(modifier = Modifier.width(12.dp))
                     Column {
-                        Text("Why are these needed?", color = Color.White, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Bold)
+                        Text(tr("Why are these needed?"), color = Color.White, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Bold)
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
-                            "FrameScope operates as a high-privilege tool. Without overlay access, we cannot draw the HUD. Without usage stats, we cannot identify which game is running. Shizuku allows us to bypass Android 14+ restrictions securely.",
+                            tr("FrameScope operates as a high-privilege tool. Without overlay access, we cannot draw the HUD. Without usage stats, we cannot identify which game is running. Shizuku allows us to bypass Android 14+ restrictions securely."),
                             color = Color.Gray,
                             style = MaterialTheme.typography.bodySmall
                         )
@@ -475,7 +476,7 @@ fun PermissionsScreen(
                 shape = CircleShape,
                 modifier = Modifier.fillMaxWidth().height(56.dp)
             ) {
-                Text("Return to Dashboard", fontWeight = FontWeight.Bold)
+                Text(tr("Return to Dashboard"), fontWeight = FontWeight.Bold)
                 Spacer(modifier = Modifier.width(8.dp))
                 if (!isAllReady) {
                     Icon(Icons.Default.Lock, contentDescription = null, modifier = Modifier.size(18.dp))
@@ -486,4 +487,3 @@ fun PermissionsScreen(
         }
     }
 }
-

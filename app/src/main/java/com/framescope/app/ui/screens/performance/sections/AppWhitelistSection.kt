@@ -13,6 +13,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.framescope.app.gaming.AppInfo
 import com.framescope.app.ui.screens.performance.components.AppWhitelistRow
+import com.framescope.app.i18n.tr
 
 fun LazyListScope.AppWhitelistSection(
     userApps: List<AppInfo>,
@@ -27,21 +28,20 @@ fun LazyListScope.AppWhitelistSection(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    "APP WHITELIST",
+                    tr("APP WHITELIST"),
                     style = MaterialTheme.typography.labelSmall,
                     color = Color.Gray,
                     modifier = Modifier.padding(start = 4.dp)
                 )
                 Text(
-                    "${whitelist.size} protected",
+                    "${whitelist.size} ${tr("protected")}",
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.primary
                 )
             }
             Spacer(modifier = Modifier.height(6.dp))
             Text(
-                "Apps switched ON will NOT be killed or restricted when Gaming Mode activates. " +
-                    "Shizuku and FrameScope are always protected.",
+                tr("Apps switched ON will NOT be killed or restricted when Gaming Mode activates. Shizuku and FrameScope are always protected."),
                 color = Color.Gray,
                 fontSize = 12.sp,
                 modifier = Modifier.padding(start = 4.dp, bottom = 10.dp)

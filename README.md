@@ -66,6 +66,7 @@ FrameScope displays a fully customizable, low-overhead overlay on top of any app
 ## Requirements
 
 - Android 8.0 (API 26) or higher
+- English and Simplified Chinese in-app UI; the initial language follows the system language and can be changed in **About & Legal → Language**
 - [Shizuku](https://github.com/RikkaApps/Shizuku) installed and running
 - Activate via Wireless Debugging (no PC needed on Android 11+) or ADB
 - Works with the Sui module on rooted devices

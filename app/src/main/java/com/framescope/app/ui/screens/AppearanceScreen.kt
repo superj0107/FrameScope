@@ -28,6 +28,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
 import com.framescope.app.repository.SettingsRepository
+import com.framescope.app.i18n.tr
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
@@ -109,10 +110,10 @@ fun AppearanceScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 IconButton(onClick = onNavigateBack) {
-                    Icon(imageVector = Icons.Default.ArrowBackIosNew, contentDescription = "Back", tint = Color.White)
+                    Icon(imageVector = Icons.Default.ArrowBackIosNew, contentDescription = tr("Back"), tint = Color.White)
                 }
                 Spacer(modifier = Modifier.weight(1f))
-                Text("Appearance", style = MaterialTheme.typography.titleMedium, color = Color.White)
+                Text(tr("Appearance"), style = MaterialTheme.typography.titleMedium, color = Color.White)
                 Spacer(modifier = Modifier.weight(1f))
                 Spacer(modifier = Modifier.width(48.dp)) // For balance
             }
@@ -125,8 +126,8 @@ fun AppearanceScreen(
             ) {
                 // Live Preview
                 Row(modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-                    Text("PREVIEW", style = MaterialTheme.typography.labelSmall, color = Color.Gray)
-                    Text("Respects selected Metrics config", style = MaterialTheme.typography.labelSmall, color = Color.Gray.copy(0.6f))
+                    Text(tr("PREVIEW"), style = MaterialTheme.typography.labelSmall, color = Color.Gray)
+                    Text(tr("Respects selected Metrics config"), style = MaterialTheme.typography.labelSmall, color = Color.Gray.copy(0.6f))
                 }
                 Box(
                     modifier = Modifier
@@ -157,14 +158,14 @@ fun AppearanceScreen(
                 Spacer(modifier = Modifier.height(24.dp))
                 
                 // Visibility
-                Text("VISIBILITY", style = MaterialTheme.typography.labelSmall, color = Color.Gray, modifier = Modifier.padding(bottom = 8.dp))
+                Text(tr("VISIBILITY"), style = MaterialTheme.typography.labelSmall, color = Color.Gray, modifier = Modifier.padding(bottom = 8.dp))
                 Card(
                     colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
                     shape = RoundedCornerShape(16.dp)
                 ) {
                     Column(modifier = Modifier.padding(20.dp)) {
                         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                            Text("Overlay Opacity", color = Color.White, fontWeight = FontWeight.Medium)
+                            Text(tr("Overlay Opacity"), color = Color.White, fontWeight = FontWeight.Medium)
                             Text("${(opacity * 100).toInt()}%", color = colors[selectedColorIndex], fontWeight = FontWeight.Bold)
                         }
                         Spacer(modifier = Modifier.height(8.dp))
@@ -184,7 +185,7 @@ fun AppearanceScreen(
                 Spacer(modifier = Modifier.height(24.dp))
 
                 // Container — background color + border style
-                Text("CONTAINER", style = MaterialTheme.typography.labelSmall, color = Color.Gray, modifier = Modifier.padding(bottom = 8.dp))
+                Text(tr("CONTAINER"), style = MaterialTheme.typography.labelSmall, color = Color.Gray, modifier = Modifier.padding(bottom = 8.dp))
                 Card(
                     colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
                     shape = RoundedCornerShape(16.dp)
@@ -192,12 +193,12 @@ fun AppearanceScreen(
                     Column(modifier = Modifier.padding(20.dp)) {
                         // Background Color
                         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                            Text("Background", color = Color.White, fontWeight = FontWeight.Medium)
-                            Text(listOf("Black", "Navy", "Charcoal", "Transparent")[selectedBgColorIndex], color = colors[selectedColorIndex], fontWeight = FontWeight.Medium, fontSize = 12.sp)
+                            Text(tr("Background"), color = Color.White, fontWeight = FontWeight.Medium)
+                            Text(tr(listOf("Black", "Navy", "Charcoal", "Transparent")[selectedBgColorIndex]), color = colors[selectedColorIndex], fontWeight = FontWeight.Medium, fontSize = 12.sp)
                         }
                         Spacer(modifier = Modifier.height(12.dp))
                         val bgColorSamples = listOf(Color.Black, Color(0xFF0D1117), Color(0xFF1C1C1E), Color.Transparent)
-                        val bgColorLabels = listOf("Black", "Navy", "Charcoal", "Clear")
+                        val bgColorLabels = listOf("Black", "Navy", "Charcoal", "Clear").map { tr(it) }
                         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                             bgColorSamples.forEachIndexed { index, col ->
                                 val isSelected = selectedBgColorIndex == index
@@ -212,7 +213,7 @@ fun AppearanceScreen(
                                     contentAlignment = Alignment.Center
                                 ) {
                                     if (col == Color.Transparent) {
-                                        Text("T", color = if (isSelected) colors[selectedColorIndex] else Color.Gray, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                                        Text(tr("T"), color = if (isSelected) colors[selectedColorIndex] else Color.Gray, fontWeight = FontWeight.Bold, fontSize = 14.sp)
                                     } else if (isSelected) {
                                         Icon(Icons.Default.Check, contentDescription = null, tint = colors[selectedColorIndex], modifier = Modifier.size(16.dp))
                                     }
@@ -230,14 +231,14 @@ fun AppearanceScreen(
 
                         // Border Style
                         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                            Text("Border", color = Color.White, fontWeight = FontWeight.Medium)
-                            Text(listOf("Accent", "None", "Subtle", "Ghost")[selectedBorderColorIndex], color = colors[selectedColorIndex], fontWeight = FontWeight.Medium, fontSize = 12.sp)
+                            Text(tr("Border"), color = Color.White, fontWeight = FontWeight.Medium)
+                            Text(tr(listOf("Accent", "None", "Subtle", "Ghost")[selectedBorderColorIndex]), color = colors[selectedColorIndex], fontWeight = FontWeight.Medium, fontSize = 12.sp)
                         }
                         Spacer(modifier = Modifier.height(12.dp))
                         Row(
                             modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp)).background(Color.Black).padding(4.dp)
                         ) {
-                            listOf("Accent", "None", "Subtle", "Ghost").forEachIndexed { index, label ->
+                            listOf("Accent", "None", "Subtle", "Ghost").map { tr(it) }.forEachIndexed { index, label ->
                                 Box(
                                     modifier = Modifier
                                         .weight(1f)
@@ -257,7 +258,7 @@ fun AppearanceScreen(
                 Spacer(modifier = Modifier.height(24.dp))
 
                 // Typography
-                Text("TYPOGRAPHY", style = MaterialTheme.typography.labelSmall, color = Color.Gray, modifier = Modifier.padding(bottom = 8.dp))
+                Text(tr("TYPOGRAPHY"), style = MaterialTheme.typography.labelSmall, color = Color.Gray, modifier = Modifier.padding(bottom = 8.dp))
                 Card(
                     colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
                     shape = RoundedCornerShape(16.dp)
@@ -269,7 +270,7 @@ fun AppearanceScreen(
                                 horizontalArrangement = Arrangement.SpaceBetween,
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Text("Text Size & Scale", color = Color.White, fontWeight = FontWeight.Medium)
+                                Text(tr("Text Size & Scale"), color = Color.White, fontWeight = FontWeight.Medium)
                                 Text("${(overlayScale * 100).toInt()}%", color = colors[selectedColorIndex], fontWeight = FontWeight.Bold)
                             }
                             Spacer(modifier = Modifier.height(16.dp))
@@ -280,7 +281,7 @@ fun AppearanceScreen(
                                     .background(Color.Black)
                                     .padding(4.dp)
                             ) {
-                                listOf("Small", "Medium", "Large").forEachIndexed { index, label ->
+                                listOf("Small", "Medium", "Large").map { tr(it) }.forEachIndexed { index, label ->
                                     val isSelected = selectedTextSize == index
                                     Box(
                                         modifier = Modifier
@@ -334,8 +335,8 @@ fun AppearanceScreen(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Column {
-                                Text("Monospace Metrics", color = Color.White, fontWeight = FontWeight.Medium)
-                                Text("Use JetBrains Mono font", color = Color.Gray, fontSize = 12.sp, fontFamily = MaterialTheme.typography.labelSmall.fontFamily)
+                                Text(tr("Monospace Metrics"), color = Color.White, fontWeight = FontWeight.Medium)
+                                Text(tr("Use JetBrains Mono font"), color = Color.Gray, fontSize = 12.sp, fontFamily = MaterialTheme.typography.labelSmall.fontFamily)
                             }
                             Switch(
                                 checked = useMonospace,
@@ -349,15 +350,15 @@ fun AppearanceScreen(
                 Spacer(modifier = Modifier.height(24.dp))
 
                 // Theme
-                Text("THEME", style = MaterialTheme.typography.labelSmall, color = Color.Gray, modifier = Modifier.padding(bottom = 8.dp))
+                Text(tr("THEME"), style = MaterialTheme.typography.labelSmall, color = Color.Gray, modifier = Modifier.padding(bottom = 8.dp))
                 Card(
                     colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
                     shape = RoundedCornerShape(16.dp)
                 ) {
                     Column(modifier = Modifier.padding(20.dp)) {
                         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                            Text("Accent Color", color = Color.White, fontWeight = FontWeight.Medium)
-                            Text("Custom", color = colors[selectedColorIndex], fontWeight = FontWeight.Medium, fontSize = 12.sp)
+                            Text(tr("Accent Color"), color = Color.White, fontWeight = FontWeight.Medium)
+                            Text(tr("Custom"), color = colors[selectedColorIndex], fontWeight = FontWeight.Medium, fontSize = 12.sp)
                         }
                         Spacer(modifier = Modifier.height(16.dp))
                         Row(
@@ -389,19 +390,24 @@ fun AppearanceScreen(
                         
                         // Text Value Color
                         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                            Text("Value Color", color = Color.White, fontWeight = FontWeight.Medium)
-                            val selectedName = if (selectedTextColorIndex == 3) "Auto (Dynamic FPS)" else listOf("White", "Accent", "Silver", "Auto")[selectedTextColorIndex]
+                            Text(tr("Value Color"), color = Color.White, fontWeight = FontWeight.Medium)
+                            val selectedName = tr(if (selectedTextColorIndex == 3) "Auto (Dynamic FPS)" else listOf("White", "Accent", "Silver", "Auto")[selectedTextColorIndex])
                             Text(selectedName, color = if (selectedTextColorIndex == 3) Color(0xFF22C55E) else colors[selectedColorIndex], fontWeight = FontWeight.Medium, fontSize = 12.sp)
                         }
                         Spacer(modifier = Modifier.height(12.dp))
                         val textColorSamples = listOf(Color.White, colors[selectedColorIndex], Color(0xFFCBD5E1), Color(0xFF22C55E))
-                        val textColorLabels = listOf("White", "Accent", "Silver", "Auto (Dynamic FPS)")
+                        val textColorLabels = listOf("White", "Accent", "Silver", "Auto (Dynamic FPS)").map { tr(it) }
                         val autoGradient = androidx.compose.ui.graphics.Brush.sweepGradient(
                             listOf(Color(0xFF22C55E), Color(0xFFEAB308), Color(0xFFEF4444), Color(0xFF22C55E))
                         )
                         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                             textColorSamples.forEachIndexed { index, col ->
                                 val isAuto = index == 3
+                                val colorDescription = if (isAuto) {
+                                    tr("Auto Value Color: Dynamically colors metrics (Green, Yellow, Red) based on live FPS performance")
+                                } else {
+                                    "${textColorLabels[index]} ${tr("Value Color")}"
+                                }
                                 val bgModifier = if (isAuto) {
                                     Modifier.background(autoGradient)
                                 } else {
@@ -418,11 +424,7 @@ fun AppearanceScreen(
                                             CircleShape
                                         )
                                         .semantics {
-                                            contentDescription = if (isAuto) {
-                                                "Auto Value Color: Dynamically colors metrics (Green, Yellow, Red) based on live FPS performance"
-                                            } else {
-                                                "${textColorLabels[index]} Value Color"
-                                            }
+                                            contentDescription = colorDescription
                                         }
                                         .clickable { selectedTextColorIndex = index },
                                     contentAlignment = Alignment.Center
@@ -452,7 +454,7 @@ fun AppearanceScreen(
                 onClick = { 
                     if (hasChanges) {
                         viewModel.saveSettings(opacity, overlayScale, useMonospace, selectedColorIndex, selectedBgColorIndex, selectedBorderColorIndex, selectedTextColorIndex)
-                        Toast.makeText(context, "Appearance configuration saved!", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, com.framescope.app.i18n.trStatic("Appearance configuration saved!"), Toast.LENGTH_SHORT).show()
                     }
                 },
                 enabled = hasChanges,
@@ -465,7 +467,7 @@ fun AppearanceScreen(
                 shape = RoundedCornerShape(12.dp),
                 modifier = Modifier.fillMaxWidth().height(56.dp)
             ) {
-                Text(if (hasChanges) "Apply Changes" else "Applied", fontWeight = FontWeight.Bold)
+                Text(tr(if (hasChanges) "Apply Changes" else "Applied"), fontWeight = FontWeight.Bold)
             }
         }
     }

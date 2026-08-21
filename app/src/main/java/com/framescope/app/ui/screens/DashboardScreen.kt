@@ -45,6 +45,7 @@ import com.framescope.app.overlay.OverlayService
 import com.framescope.app.ui.components.PrimaryButton
 import com.framescope.app.ui.components.QuickActionButton
 import com.framescope.app.ui.components.SectionCard
+import com.framescope.app.i18n.tr
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
@@ -103,12 +104,12 @@ fun DashboardScreen(
             Row(verticalAlignment = Alignment.CenterVertically) {
                 androidx.compose.foundation.Image(
                     painter = painterResource(id = com.framescope.app.R.mipmap.ic_launcher),
-                    contentDescription = "Logo",
+                    contentDescription = tr("Logo"),
                     modifier = Modifier.size(40.dp).clip(RoundedCornerShape(12.dp))
                 )
                 Spacer(modifier = Modifier.width(12.dp))
                 Text(
-                    text = "FrameScope",
+                    text = tr("FrameScope"),
                     style = MaterialTheme.typography.titleLarge,
                     color = Color.White
                 )
@@ -119,7 +120,7 @@ fun DashboardScreen(
                     .size(40.dp)
                     .background(MaterialTheme.colorScheme.surface, CircleShape)
             ) {
-                Icon(imageVector = Icons.Default.Settings, contentDescription = "Settings", tint = Color.LightGray)
+                Icon(imageVector = Icons.Default.Settings, contentDescription = tr("Settings"), tint = Color.LightGray)
             }
         }
 
@@ -139,12 +140,12 @@ fun DashboardScreen(
                 ) {
                     Column {
                         Text(
-                            text = "OVERLAY STATUS",
+                            text = tr("OVERLAY STATUS"),
                             style = MaterialTheme.typography.labelSmall,
                             color = Color.Gray
                         )
                         Text(
-                            text = if (isOverlayRunning) "Monitoring Active" else "Ready to Monitor",
+                            text = tr(if (isOverlayRunning) "Monitoring Active" else "Ready to Monitor"),
                             style = MaterialTheme.typography.titleLarge.copy(fontSize = 24.sp),
                             color = Color.White
                         )
@@ -158,7 +159,7 @@ fun DashboardScreen(
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Box(modifier = Modifier.size(8.dp).background(if (isOverlayRunning) Color(0xFF22C55E) else Color.Gray, CircleShape))
                             Spacer(modifier = Modifier.width(6.dp))
-                            Text(text = if (isOverlayRunning) "ACTIVE" else "INACTIVE", style = MaterialTheme.typography.labelSmall, color = if (isOverlayRunning) Color(0xFF22C55E) else Color.Gray)
+                            Text(text = tr(if (isOverlayRunning) "ACTIVE" else "INACTIVE"), style = MaterialTheme.typography.labelSmall, color = if (isOverlayRunning) Color(0xFF22C55E) else Color.Gray)
                         }
                     }
                 }
@@ -179,7 +180,7 @@ fun DashboardScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = "FRAME RATE",
+                            text = tr("FRAME RATE"),
                             fontSize = 11.sp,
                             fontWeight = FontWeight.SemiBold,
                             color = Color.Gray,
@@ -194,7 +195,7 @@ fun DashboardScreen(
                             )
                             Spacer(modifier = Modifier.width(3.dp))
                             Text(
-                                text = "FPS",
+                                text = tr("FPS"),
                                 fontSize = 11.sp,
                                 fontWeight = FontWeight.SemiBold,
                                 color = Color.Gray,
@@ -279,15 +280,15 @@ fun DashboardScreen(
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Text("AVG", fontSize = 9.5.sp, fontWeight = FontWeight.SemiBold, color = Color.Gray)
+                            Text(tr("AVG"), fontSize = 9.5.sp, fontWeight = FontWeight.SemiBold, color = Color.Gray)
                             Text("$avgFps", fontSize = 12.5.sp, fontWeight = FontWeight.SemiBold, color = Color.White.copy(0.8f))
                         }
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Text("1% LOW", fontSize = 9.5.sp, fontWeight = FontWeight.SemiBold, color = Color.Gray)
+                            Text(tr("1% LOW"), fontSize = 9.5.sp, fontWeight = FontWeight.SemiBold, color = Color.Gray)
                             Text("$onePercentLow", fontSize = 12.5.sp, fontWeight = FontWeight.SemiBold, color = Color.White.copy(0.8f))
                         }
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Text("FRAMETIME", fontSize = 9.5.sp, fontWeight = FontWeight.SemiBold, color = Color.Gray)
+                            Text(tr("FRAMETIME"), fontSize = 9.5.sp, fontWeight = FontWeight.SemiBold, color = Color.Gray)
                             Text("${frametimeMs}ms", fontSize = 12.5.sp, fontWeight = FontWeight.SemiBold, color = Color.White.copy(0.8f))
                         }
                     }
@@ -310,12 +311,12 @@ fun DashboardScreen(
                         shape = CircleShape,
                         modifier = Modifier.fillMaxWidth().height(56.dp)
                     ) {
-                        Text("Stop Overlay", fontWeight = FontWeight.Bold)
+                        Text(tr("Stop Overlay"), fontWeight = FontWeight.Bold)
                     }
                 } else {
                     if (allPermissionsReady) {
                         PrimaryButton(
-                            text = "Start Overlay",
+                            text = tr("Start Overlay"),
                             onClick = {
                                 val intent = Intent(context, OverlayService::class.java).apply {
                                     action = OverlayService.ACTION_START
@@ -327,13 +328,13 @@ fun DashboardScreen(
                     } else {
                         // One or more required permissions are missing — guide the user to fix them.
                         val missing = buildList {
-                            if (!hasOverlayPermission) add("Overlay permission")
-                            if (!isShizukuAvailable) add("Shizuku service")
-                            if (!hasShizukuPermission) add("Shizuku permission")
+                            if (!hasOverlayPermission) add(tr("Overlay permission"))
+                            if (!isShizukuAvailable) add(tr("Shizuku service"))
+                            if (!hasShizukuPermission) add(tr("Shizuku permission"))
                         }
                         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                             Text(
-                                text = "Missing: ${missing.joinToString(" · ")}",
+                                text = "${tr("Missing")}: ${missing.joinToString(" · ")}",
                                 color = Color(0xFFFBBF24),
                                 fontSize = 11.sp,
                                 modifier = Modifier.fillMaxWidth(),
@@ -350,7 +351,7 @@ fun DashboardScreen(
                             ) {
                                 Icon(Icons.Default.Settings, contentDescription = null, modifier = Modifier.size(20.dp))
                                 Spacer(modifier = Modifier.width(8.dp))
-                                Text("Complete Setup First", fontWeight = FontWeight.Bold)
+                                Text(tr("Complete Setup First"), fontWeight = FontWeight.Bold)
                             }
                         }
                     }
@@ -361,7 +362,7 @@ fun DashboardScreen(
 
             // Quick Access Section Label
             Text(
-                text = "QUICK ACCESS",
+                text = tr("QUICK ACCESS"),
                 fontSize = 12.sp,
                 fontWeight = FontWeight.SemiBold,
                 color = Color.Gray,
@@ -377,8 +378,8 @@ fun DashboardScreen(
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 QuickActionButton(
-                    title = "Metrics",
-                    subtitle = "FPS · CPU · GPU · RAM",
+                    title = tr("Metrics"),
+                    subtitle = tr("FPS · CPU · GPU · RAM"),
                     iconContainerColor = Color(0xFF6C6CE0).copy(alpha = 0.14f),
                     iconContentColor = Color(0xFF9494EE),
                     onClick = onNavigateToOverlayCustomization,
@@ -386,8 +387,8 @@ fun DashboardScreen(
                     icon = { Icon(Icons.Default.DashboardCustomize, null) }
                 )
                 QuickActionButton(
-                    title = "Theme",
-                    subtitle = "Colors · Opacity · Size",
+                    title = tr("Theme"),
+                    subtitle = tr("Colors · Opacity · Size"),
                     iconContainerColor = Color(0xFFE8A23C).copy(alpha = 0.14f),
                     iconContentColor = Color(0xFFF0BB6E),
                     onClick = onNavigateToAppearance,
@@ -403,8 +404,8 @@ fun DashboardScreen(
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 QuickActionButton(
-                    title = "Performance",
-                    subtitle = "Game mode",
+                    title = tr("Performance"),
+                    subtitle = tr("Game mode"),
                     iconContainerColor = Color(0xFF2FBF9F).copy(alpha = 0.14f),
                     iconContentColor = Color(0xFF4FDCB8),
                     onClick = onNavigateToPerformance,
@@ -423,8 +424,8 @@ fun DashboardScreen(
                     )
                 )
                 QuickActionButton(
-                    title = "Shizuku",
-                    subtitle = if (isShizukuReady) "Connected" else "Not Connected",
+                    title = tr("Shizuku"),
+                    subtitle = tr(if (isShizukuReady) "Connected" else "Not Connected"),
                     iconContainerColor = if (isShizukuReady) Color(0xFF3D9BE0).copy(alpha = 0.14f) else Color.Red.copy(0.14f),
                     iconContentColor = if (isShizukuReady) Color(0xFF6EB8EE) else Color.Red,
                     onClick = onNavigateToPermissions,
@@ -439,21 +440,21 @@ fun DashboardScreen(
                             )
                             Spacer(modifier = Modifier.width(5.dp))
                             Text(
-                                text = if (isShizukuReady) "Connected" else "Disconnected",
+                                text = tr(if (isShizukuReady) "Connected" else "Disconnected"),
                                 fontSize = 11.5.sp,
                                 color = if (isShizukuReady) Color(0xFF2FBF9F) else Color.Red,
                                 fontWeight = FontWeight.Medium
                             )
                         }
                     },
-                    icon = { Text("ADB", color = if (isShizukuReady) Color(0xFF6EB8EE) else Color.Red, fontWeight = FontWeight.Bold, fontSize = 13.sp) }
+                    icon = { Text(tr("ADB"), color = if (isShizukuReady) Color(0xFF6EB8EE) else Color.Red, fontWeight = FontWeight.Bold, fontSize = 13.sp) }
                 )
             }
 
             Spacer(modifier = Modifier.height(12.dp))
             QuickActionButton(
-                title = "Thermal diagnostics",
-                subtitle = "Find what's causing frame drops",
+                title = tr("Thermal diagnostics"),
+                subtitle = tr("Find what's causing frame drops"),
                 iconContainerColor = Color(0xFFE8324A).copy(alpha = 0.14f),
                 iconContentColor = Color(0xFFF0576E),
                 onClick = onNavigateToThermalDiagnostics,
@@ -466,5 +467,3 @@ fun DashboardScreen(
         }
     }
 }
-
-

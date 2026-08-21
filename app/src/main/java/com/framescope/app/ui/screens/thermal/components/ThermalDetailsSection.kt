@@ -1,5 +1,7 @@
 package com.framescope.app.ui.screens.thermal.components
 
+import com.framescope.app.i18n.tr
+
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -42,7 +44,7 @@ fun ThermalDetailsSection(
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(Icons.Default.DeveloperBoard, contentDescription = null, tint = Color(0xFFA78BFA), modifier = Modifier.size(18.dp))
                     Spacer(modifier = Modifier.width(10.dp))
-                    Text("Sensor Details & Provenance", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                    Text(tr("Sensor Details & Provenance"), color = Color.White, fontWeight = FontWeight.Bold, fontSize = 13.sp)
                 }
                 Icon(
                     if (isExpanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,

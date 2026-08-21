@@ -1,5 +1,7 @@
 package com.framescope.app.ui.screens.thermal.components
 
+import com.framescope.app.i18n.tr
+
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -171,7 +173,7 @@ fun TopProcessCard(
                             )
                         }
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text("TOP PROCESS", color = Color.Gray, style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold)
+                        Text(tr("TOP PROCESS"), color = Color.Gray, style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold)
                     }
 
                     IconButton(

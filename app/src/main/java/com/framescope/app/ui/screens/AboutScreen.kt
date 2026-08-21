@@ -47,6 +47,8 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.ViewModel
 import com.framescope.app.device.DeviceDiagnosticManager
 import com.framescope.app.repository.SettingsRepository
+import com.framescope.app.i18n.AppLanguage
+import com.framescope.app.i18n.tr
 import com.framescope.app.ui.components.VivoDiagnosticDialog
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -63,6 +65,7 @@ class AboutViewModel @Inject constructor(
     val vivoOptEnabled = settingsRepository.vivoOptEnabled
     val autoUpdateCheckEnabled = settingsRepository.autoUpdateCheckEnabled
     val downloadState = updateRepository.downloadState
+    val appLanguage = settingsRepository.appLanguage
 
     fun setVivoOptEnabled(enabled: Boolean) {
         settingsRepository.setVivoOptEnabled(enabled)
@@ -70,6 +73,10 @@ class AboutViewModel @Inject constructor(
 
     fun setAutoUpdateCheckEnabled(enabled: Boolean) {
         settingsRepository.setAutoUpdateCheckEnabled(enabled)
+    }
+
+    fun setAppLanguage(language: AppLanguage) {
+        settingsRepository.setAppLanguage(language)
     }
 }
 
@@ -163,10 +170,10 @@ fun AboutScreen(
                 modifier = Modifier
                     .background(Color.White.copy(0.05f), CircleShape)
             ) {
-                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = Color.White)
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = tr("Back"), tint = Color.White)
             }
             Text(
-                text = "About & Legal",
+                text = tr("About & Legal"),
                 color = Color.White,
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
@@ -195,13 +202,13 @@ fun AboutScreen(
             ) {
                 androidx.compose.foundation.Image(
                     painter = painterResource(id = R.mipmap.ic_launcher),
-                    contentDescription = "FrameScope Logo",
+                    contentDescription = tr("FrameScope Logo"),
                     modifier = Modifier.size(80.dp)
                 )
             }
             Spacer(modifier = Modifier.height(16.dp))
-            Text("FrameScope", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = Color.White)
-            Text("v$versionName (Build $versionCode)", fontSize = 14.sp, color = Color.Gray, fontWeight = FontWeight.Medium)
+                Text(tr("FrameScope"), fontSize = 28.sp, fontWeight = FontWeight.Bold, color = Color.White)
+            Text("v$versionName (${tr("Build")} $versionCode)", fontSize = 14.sp, color = Color.Gray, fontWeight = FontWeight.Medium)
             
             Spacer(modifier = Modifier.height(24.dp))
             
@@ -219,14 +226,55 @@ fun AboutScreen(
             ) {
                 Icon(Icons.Default.Mail, contentDescription = null, tint = accentColor, modifier = Modifier.size(20.dp))
                 Spacer(modifier = Modifier.width(8.dp))
-                Text("Contact Developer", color = Color.White, fontWeight = FontWeight.Bold)
+                Text(tr("Contact Developer"), color = Color.White, fontWeight = FontWeight.Bold)
             }
 
             Spacer(modifier = Modifier.height(32.dp))
 
+            // In-app language selector. This works on Android 8.1 too, where
+            // the newer per-app language system API is not available.
+            val selectedLanguage by viewModel.appLanguage.collectAsState()
+            Column(modifier = Modifier.fillMaxWidth()) {
+                Text(
+                    tr("LANGUAGE"),
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = Color.Gray,
+                    letterSpacing = 0.06.sp,
+                    modifier = Modifier.padding(start = 4.dp, bottom = 12.dp)
+                )
+                Card(
+                    shape = RoundedCornerShape(16.dp),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                    border = BorderStroke(1.dp, Color.White.copy(alpha = 0.08f)),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(16.dp),
+                        horizontalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        AppLanguage.entries.forEach { language ->
+                            Button(
+                                onClick = { viewModel.setAppLanguage(language) },
+                                modifier = Modifier.weight(1f),
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = if (selectedLanguage == language) accentColor else Color.White.copy(alpha = 0.06f),
+                                    contentColor = Color.White
+                                ),
+                                shape = RoundedCornerShape(10.dp)
+                            ) {
+                                Text(tr(language.displayName), fontWeight = FontWeight.Bold)
+                            }
+                        }
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(28.dp))
+
             // App Updates Card
             Column(modifier = Modifier.fillMaxWidth()) {
-                Text("APPLICATION UPDATES", fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = Color.Gray, letterSpacing = 0.06.sp, modifier = Modifier.padding(start = 4.dp, bottom = 12.dp))
+                Text(tr("APPLICATION UPDATES"), fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = Color.Gray, letterSpacing = 0.06.sp, modifier = Modifier.padding(start = 4.dp, bottom = 12.dp))
                 Card(
                     shape = RoundedCornerShape(20.dp),
                     colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
@@ -258,9 +306,9 @@ fun AboutScreen(
                                     }
                                     Spacer(modifier = Modifier.width(14.dp))
                                     Column(modifier = Modifier.weight(1f)) {
-                                        Text("Auto-check for updates", color = Color.White, fontWeight = FontWeight.SemiBold, fontSize = 15.5.sp)
+                                        Text(tr("Auto-check for updates"), color = Color.White, fontWeight = FontWeight.SemiBold, fontSize = 15.5.sp)
                                         Spacer(modifier = Modifier.height(2.dp))
-                                        Text("Check GitHub releases on app startup.", color = Color.White.copy(alpha = 0.6f), fontSize = 12.5.sp)
+                                        Text(tr("Check GitHub releases on app startup."), color = Color.White.copy(alpha = 0.6f), fontSize = 12.5.sp)
                                     }
                                 }
                                 Switch(
@@ -282,7 +330,7 @@ fun AboutScreen(
                                 horizontalArrangement = Arrangement.SpaceBetween
                             ) {
                                 Text(
-                                    text = statusMessage ?: "Current Version: v$versionName",
+                                    text = statusMessage ?: "${tr("Current Version")}: v$versionName",
                                     fontSize = 12.5.sp,
                                     color = if (statusMessage != null) accentColor else Color.Gray,
                                     fontWeight = FontWeight.Medium,
@@ -292,19 +340,19 @@ fun AboutScreen(
                                 Button(
                                     onClick = {
                                         isCheckingUpdate = true
-                                        statusMessage = "Checking GitHub..."
+                                        statusMessage = com.framescope.app.i18n.trStatic("Checking GitHub...")
                                         scope.launch {
                                             val result = viewModel.updateRepository.checkForUpdates()
                                             isCheckingUpdate = false
                                             result.onSuccess { info ->
                                                 if (info.isUpdateAvailable) {
                                                     updateInfoState = info
-                                                    statusMessage = "Update available: v${info.versionName}"
+                                                    statusMessage = "${com.framescope.app.i18n.trStatic("Update available")}: v${info.versionName}"
                                                 } else {
-                                                    statusMessage = "FrameScope is up to date (v$versionName)"
+                                                    statusMessage = com.framescope.app.i18n.trStatic("FrameScope is up to date (v$versionName)")
                                                 }
                                             }.onFailure { err ->
-                                                statusMessage = err.localizedMessage ?: "Check failed"
+                                                statusMessage = err.localizedMessage ?: com.framescope.app.i18n.trStatic("Check failed")
                                             }
                                         }
                                     },
@@ -320,7 +368,7 @@ fun AboutScreen(
                                             strokeWidth = 2.dp
                                         )
                                     } else {
-                                        Text("Check for Updates", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                                        Text(tr("Check for Updates"), fontSize = 12.sp, fontWeight = FontWeight.Bold)
                                     }
                                 }
                             }
@@ -336,7 +384,7 @@ fun AboutScreen(
             var showVivoDiagModal by remember { mutableStateOf(false) }
 
             Column(modifier = Modifier.fillMaxWidth()) {
-                Text("HARDWARE OPTIMIZATIONS", fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = Color.Gray, letterSpacing = 0.06.sp, modifier = Modifier.padding(start = 4.dp, bottom = 12.dp))
+                Text(tr("HARDWARE OPTIMIZATIONS"), fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = Color.Gray, letterSpacing = 0.06.sp, modifier = Modifier.padding(start = 4.dp, bottom = 12.dp))
                 Card(
                     shape = RoundedCornerShape(20.dp),
                     colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
@@ -369,9 +417,9 @@ fun AboutScreen(
                                 }
                                 Spacer(modifier = Modifier.width(14.dp))
                                 Column(modifier = Modifier.weight(1f)) {
-                                    Text("Vivo T3 Ultra Hardware Optimizations", color = Color.White, fontWeight = FontWeight.SemiBold, fontSize = 15.5.sp)
+                                    Text(tr("Vivo T3 Ultra Hardware Optimizations"), color = Color.White, fontWeight = FontWeight.SemiBold, fontSize = 15.5.sp)
                                     Spacer(modifier = Modifier.height(2.dp))
-                                    Text("Enable OriginOS / FuntouchOS OEM power governor overrides.", color = Color.White.copy(alpha = 0.6f), fontSize = 12.5.sp)
+                                    Text(tr("Enable OriginOS / FuntouchOS OEM power governor overrides."), color = Color.White.copy(alpha = 0.6f), fontSize = 12.5.sp)
                                 }
                             }
                             Switch(
@@ -415,7 +463,7 @@ fun AboutScreen(
                     canInstallPackages = { viewModel.updateInstaller.canInstallPackages() },
                     onRequestInstallPermission = {
                         viewModel.updateInstaller.openUnknownAppSourcesSettings()
-                        statusMessage = "Please allow unknown app installation, then tap Download & Install again."
+                        statusMessage = com.framescope.app.i18n.trStatic("Please allow unknown app installation, then tap Download & Install again.")
                     },
                     onDownloadAndInstallClicked = {
                         viewModel.updateRepository.requestDownloadOrResume(info)
@@ -454,7 +502,7 @@ fun AboutScreen(
 
             // Privacy Card
             Column(modifier = Modifier.fillMaxWidth()) {
-                Text("Our Privacy Commitment", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color.White, modifier = Modifier.padding(start = 4.dp))
+                Text(tr("Our Privacy Commitment"), fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color.White, modifier = Modifier.padding(start = 4.dp))
                 Spacer(modifier = Modifier.height(12.dp))
                 Box(
                     modifier = Modifier
@@ -465,9 +513,9 @@ fun AboutScreen(
                         .padding(20.dp)
                 ) {
                     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                        CommitmentRow(title = "No user data collected", subtitle = "Your personal info stays on device.")
-                        CommitmentRow(title = "No background tracking", subtitle = "The app sleeps when you do.")
-                        CommitmentRow(title = "No ads - ever", subtitle = "FrameScope is completely ad-free.")
+                        CommitmentRow(title = tr("No user data collected"), subtitle = tr("Your personal info stays on device."))
+                        CommitmentRow(title = tr("No background tracking"), subtitle = tr("The app sleeps when you do."))
+                        CommitmentRow(title = tr("No ads - ever"), subtitle = tr("FrameScope is completely ad-free."))
                     }
                 }
             }
@@ -480,7 +528,7 @@ fun AboutScreen(
 
             if (crashLogState) {
                 Column(modifier = Modifier.fillMaxWidth()) {
-                    Text("Crash Diagnostics", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color.White, modifier = Modifier.padding(start = 4.dp))
+                    Text(tr("Crash Diagnostics"), fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color.White, modifier = Modifier.padding(start = 4.dp))
                     Spacer(modifier = Modifier.height(12.dp))
                     Card(
                         shape = RoundedCornerShape(24.dp),
@@ -492,11 +540,11 @@ fun AboutScreen(
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Icon(Icons.Default.BugReport, contentDescription = null, tint = Color.Red, modifier = Modifier.size(20.dp))
                                 Spacer(modifier = Modifier.width(10.dp))
-                                Text("Recent Crash Log Detected", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 15.sp)
+                                Text(tr("Recent Crash Log Detected"), color = Color.White, fontWeight = FontWeight.Bold, fontSize = 15.sp)
                             }
                             Spacer(modifier = Modifier.height(6.dp))
                             Text(
-                                "FrameScope captured a local crash stack trace. No telemetry was sent. You can share this log on GitHub to help fix issues.",
+                                tr("FrameScope captured a local crash stack trace. No telemetry was sent. You can share this log on GitHub to help fix issues."),
                                 color = Color.Gray,
                                 fontSize = 12.sp
                             )
@@ -511,7 +559,7 @@ fun AboutScreen(
                                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                                     modifier = Modifier.weight(1f)
                                 ) {
-                                    Text("Share Log", fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                                    Text(tr("Share Log"), fontWeight = FontWeight.Bold, fontSize = 12.sp)
                                 }
                                 OutlinedButton(
                                     onClick = {
@@ -522,7 +570,7 @@ fun AboutScreen(
                                     border = BorderStroke(1.dp, Color.White.copy(0.2f)),
                                     modifier = Modifier.weight(1f)
                                 ) {
-                                    Text("Clear Log", color = Color.Gray, fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                                    Text(tr("Clear Log"), color = Color.Gray, fontWeight = FontWeight.Bold, fontSize = 12.sp)
                                 }
                             }
                         }
@@ -533,7 +581,7 @@ fun AboutScreen(
 
             // Legal List
             Column(modifier = Modifier.fillMaxWidth()) {
-                Text("Legal", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color.White, modifier = Modifier.padding(start = 4.dp))
+                Text(tr("Legal"), fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color.White, modifier = Modifier.padding(start = 4.dp))
                 Spacer(modifier = Modifier.height(12.dp))
                 Column(
                     modifier = Modifier
@@ -544,19 +592,19 @@ fun AboutScreen(
                 ) {
                     LegalListItem(
                         icon = Icons.Default.Policy,
-                        title = "Privacy Policy",
+                        title = tr("Privacy Policy"),
                         url = "https://superj0107.github.io/FrameScope/privacy-policy"
                     )
                     HorizontalDivider(color = Color.White.copy(0.05f))
                     LegalListItem(
                         icon = Icons.Default.Code,
-                        title = "Open-source License",
+                        title = tr("Open-source License"),
                         url = "https://github.com/superj0107/FrameScope/blob/main/LICENSE"
                     )
                     HorizontalDivider(color = Color.White.copy(0.05f))
                     LegalListItem(
                         icon = Icons.Default.Gavel,
-                        title = "Known Limitations",
+                        title = tr("Known Limitations"),
                         url = "https://github.com/superj0107/FrameScope/blob/main/KNOWN_LIMITATIONS.md"
                     )
                 }
@@ -572,7 +620,7 @@ fun AboutScreen(
             ) {
                 Icon(Icons.Default.Bolt, contentDescription = null, tint = Color.Gray, modifier = Modifier.size(16.dp))
                 Spacer(modifier = Modifier.width(4.dp))
-                Text("Powered by Shizuku API", color = Color.Gray, fontSize = 12.sp, fontWeight = FontWeight.Medium)
+                Text(tr("Powered by Shizuku API"), color = Color.Gray, fontSize = 12.sp, fontWeight = FontWeight.Medium)
             }
         }
     }

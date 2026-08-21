@@ -1,5 +1,7 @@
 package com.framescope.app.ui.screens.performance.sections
 
+import com.framescope.app.i18n.tr
+
 import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
@@ -63,7 +65,7 @@ fun HeroGamingCard(
                 ) {
                     Column {
                         Text(
-                            "GAMING MODE",
+                            tr("GAMING MODE"),
                             style = MaterialTheme.typography.labelSmall,
                             color = Color.Gray
                         )
@@ -75,11 +77,11 @@ fun HeroGamingCard(
                         ) { state ->
                             Text(
                                 text = when (state) {
-                                    is GamingModeState.Idle -> "Inactive"
-                                    is GamingModeState.Enabling -> "Activating…"
-                                    is GamingModeState.Active -> "Active"
-                                    is GamingModeState.Disabling -> "Restoring…"
-                                    is GamingModeState.Error -> "Error"
+                                    is GamingModeState.Idle -> tr("Inactive")
+                                    is GamingModeState.Enabling -> tr("Activating…")
+                                    is GamingModeState.Active -> tr("Active")
+                                    is GamingModeState.Disabling -> tr("Restoring…")
+                                    is GamingModeState.Error -> tr("Error")
                                 },
                                 style = MaterialTheme.typography.titleLarge.copy(fontSize = 24.sp),
                                 color = Color.White
@@ -123,9 +125,9 @@ fun HeroGamingCard(
                             Spacer(modifier = Modifier.width(6.dp))
                             Text(
                                 text = when {
-                                    isActive -> "ACTIVE"
-                                    gamingState is GamingModeState.Error -> "ERROR"
-                                    else -> "INACTIVE"
+                                    isActive -> tr("ACTIVE")
+                                    gamingState is GamingModeState.Error -> tr("ERROR")
+                                    else -> tr("INACTIVE")
                                 },
                                 style = MaterialTheme.typography.labelSmall,
                                 color = when {
@@ -154,7 +156,7 @@ fun HeroGamingCard(
                         Spacer(modifier = Modifier.height(6.dp))
                         val statusText = when (val s = gamingState) {
                             is GamingModeState.Enabling -> s.statusText
-                            is GamingModeState.Disabling -> "Restoring system state…"
+                            is GamingModeState.Disabling -> tr("Restoring system state…")
                             else -> ""
                         }
                         Text(
@@ -221,17 +223,17 @@ fun HeroGamingCard(
                                     )
                                     Spacer(modifier = Modifier.width(8.dp))
                                     Text(
-                                        "Esports Optimization Engine Active",
+                                        tr("Esports Optimization Engine Active"),
                                         color = Color(0xFF10B981),
                                         fontWeight = FontWeight.Bold,
                                         fontSize = 13.sp
                                     )
                                 }
                                 HorizontalDivider(color = Color(0xFF10B981).copy(0.15f))
-                                EsportsStatusRow("CPU Priority", "Unrestricted (ACTIVE Bucket)")
-                                EsportsStatusRow("Network Policy", "Firewall & Force Doze Active")
-                                EsportsStatusRow("Display & Touch", "Locked Max Hz & Touch Boost")
-                                EsportsStatusRow("PowerHAL Floor", "Fixed Performance Mode")
+                                EsportsStatusRow(tr("CPU Priority"), tr("Unrestricted (ACTIVE Bucket)"))
+                                EsportsStatusRow(tr("Network Policy"), tr("Firewall & Force Doze Active"))
+                                EsportsStatusRow(tr("Display & Touch"), tr("Locked Max Hz & Touch Boost"))
+                                EsportsStatusRow(tr("PowerHAL Floor"), tr("Fixed Performance Mode"))
                             }
                         }
 
@@ -256,7 +258,7 @@ fun HeroGamingCard(
                         ) {
                             Icon(Icons.Default.Stop, null, modifier = Modifier.size(20.dp))
                             Spacer(modifier = Modifier.width(8.dp))
-                            Text("Deactivate Gaming Mode", fontWeight = FontWeight.Bold)
+                            Text(tr("Deactivate Gaming Mode"), fontWeight = FontWeight.Bold)
                         }
                     } else if (gamingState is GamingModeState.Error && gamingState.message.contains("Deactivation", ignoreCase = true)) {
                         Button(
@@ -272,7 +274,7 @@ fun HeroGamingCard(
                         ) {
                             Icon(Icons.Default.Stop, null, modifier = Modifier.size(20.dp))
                             Spacer(modifier = Modifier.width(8.dp))
-                            Text("Retry Deactivation", fontWeight = FontWeight.Bold)
+                            Text(tr("Retry Deactivation"), fontWeight = FontWeight.Bold)
                         }
                     } else {
                         Button(
@@ -292,7 +294,7 @@ fun HeroGamingCard(
                             Icon(Icons.Default.PlayArrow, null, modifier = Modifier.size(20.dp))
                             Spacer(modifier = Modifier.width(8.dp))
                             Text(
-                                if (canActivate) "Activate Gaming Mode" else "Complete setup first",
+                                if (canActivate) tr("Activate Gaming Mode") else tr("Complete setup first"),
                                 fontWeight = FontWeight.Bold
                             )
                         }
@@ -317,7 +319,7 @@ fun HeroGamingCard(
                         )
                         Spacer(modifier = Modifier.width(10.dp))
                         Text(
-                            if (gamingState is GamingModeState.Enabling) "Activating…" else "Restoring…",
+                            if (gamingState is GamingModeState.Enabling) tr("Activating…") else tr("Restoring…"),
                             fontWeight = FontWeight.Bold
                         )
                     }
@@ -354,7 +356,7 @@ private fun VivoBoostStatusCard(result: VivoOptimizationResult) {
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                    "Vivo T3 Ultra Hardware Boost",
+                    tr("Vivo T3 Ultra Hardware Boost"),
                     color = accentColor,
                     fontWeight = FontWeight.Bold,
                     fontSize = 13.sp
@@ -362,12 +364,12 @@ private fun VivoBoostStatusCard(result: VivoOptimizationResult) {
             }
             HorizontalDivider(color = accentColor.copy(alpha = 0.15f))
             VivoStatusRow(
-                "Display Mode Lock (Mode 4)",
-                "1080p @ ${result.maxHzApplied} Hz Locked",
+                tr("Display Mode Lock (Mode 4)"),
+                "1080p @ ${result.maxHzApplied} Hz ${tr("Locked")}",
                 result.displayModeLock
             )
-            VivoStatusRow("Touch Latency Boost", "vtouch.persist Active", result.touchBoost)
-            VivoStatusRow("OEM Game Whitelists", "4 Whitelists Appended", result.whitelistApplied)
+            VivoStatusRow(tr("Touch Latency Boost"), tr("vtouch.persist Active"), result.touchBoost)
+            VivoStatusRow(tr("OEM Game Whitelists"), tr("4 Whitelists Appended"), result.whitelistApplied)
         }
     }
 }
@@ -401,7 +403,7 @@ private fun VivoStatusRow(label: String, detail: String, ok: Boolean) {
             )
         }
         Text(
-            text = if (ok) "ON" else "FAIL",
+            text = if (ok) tr("ON") else tr("FAIL"),
             color = if (ok) okColor else failColor,
             fontSize = 10.sp,
             fontWeight = FontWeight.Bold

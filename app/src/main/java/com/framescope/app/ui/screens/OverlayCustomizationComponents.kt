@@ -33,6 +33,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.framescope.app.i18n.tr
 import com.framescope.app.metrics.METRIC_MODULE_REGISTRY
 
 /**
@@ -67,7 +68,7 @@ internal fun ModeSelector(
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = mode,
+                    text = tr(mode),
                     color = if (selectedMode == mode) Color.White else Color.Gray,
                     fontWeight = FontWeight.Bold
                 )
@@ -110,9 +111,9 @@ internal fun OverlayPreviewCard(
                 ) {
                     Box(modifier = Modifier.size(6.dp).clip(CircleShape).background(MaterialTheme.colorScheme.primary))
                     Spacer(modifier = Modifier.width(6.dp))
-                    Text("Preview", color = MaterialTheme.colorScheme.primary, fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                    Text(tr("Preview"), color = MaterialTheme.colorScheme.primary, fontSize = 10.sp, fontWeight = FontWeight.Bold)
                 }
-                Text("layout_v2.json", color = Color.Gray, style = MaterialTheme.typography.labelSmall)
+                Text(tr("layout_v2.json"), color = Color.Gray, style = MaterialTheme.typography.labelSmall)
             }
 
             // Preview order always mirrors the live `modules` list state above, so what's
@@ -134,7 +135,7 @@ internal fun OverlayPreviewCard(
                                 Row(verticalAlignment = Alignment.CenterVertically) {
                                     Icon(info.icon, contentDescription = null, tint = accentColor, modifier = Modifier.size((16 * textScale).dp))
                                     Spacer(modifier = Modifier.width((8 * textScale).dp))
-                                    Text(info.displayName, color = Color.Gray, fontSize = (10 * textScale).sp, fontFamily = fontFamily, modifier = Modifier.weight(1f))
+                                    Text(tr(info.displayName), color = Color.Gray, fontSize = (10 * textScale).sp, fontFamily = fontFamily, modifier = Modifier.weight(1f))
                                     Text(
                                         info.previewSampleValue,
                                         color = Color.White,
@@ -180,7 +181,7 @@ internal fun OverlayPreviewCard(
                                 }
                             }
                             if (enabledModules.isEmpty()) {
-                                Text("No modules selected", color = Color.Gray, fontFamily = fontFamily, fontSize = (12 * textScale).sp)
+                                Text(tr("No modules selected"), color = Color.Gray, fontFamily = fontFamily, fontSize = (12 * textScale).sp)
                             }
                         }
                     }
@@ -224,7 +225,7 @@ internal fun ModuleRow(
         }
         Spacer(modifier = Modifier.width(16.dp))
         Column(modifier = Modifier.weight(1f)) {
-            Text(info.displayName, color = Color.White, fontWeight = FontWeight.Bold)
+                            Text(tr(info.displayName), color = Color.White, fontWeight = FontWeight.Bold)
             Box(
                 modifier = Modifier
                     .clip(RoundedCornerShape(4.dp))
@@ -243,7 +244,7 @@ internal fun ModuleRow(
         if (dragHandleModifier != null) {
             Icon(
                 Icons.Default.DragIndicator,
-                contentDescription = "Drag to reorder",
+                contentDescription = tr("Drag to reorder"),
                 tint = Color.Gray,
                 modifier = dragHandleModifier
             )
@@ -252,4 +253,3 @@ internal fun ModuleRow(
         }
     }
 }
-

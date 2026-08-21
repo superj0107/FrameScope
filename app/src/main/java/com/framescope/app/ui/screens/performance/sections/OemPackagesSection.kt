@@ -10,6 +10,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.framescope.app.i18n.tr
 
 @Composable
 fun OemPackagesSection(safeToSuspendList: List<String>) {
@@ -17,7 +18,7 @@ fun OemPackagesSection(safeToSuspendList: List<String>) {
 
     Column(modifier = Modifier.padding(horizontal = 24.dp)) {
         Text(
-            "AUTOMATICALLY SUSPENDED OEM PACKAGES",
+            tr("AUTOMATICALLY SUSPENDED OEM PACKAGES"),
             style = MaterialTheme.typography.labelSmall,
             color = Color.Gray,
             modifier = Modifier.padding(start = 4.dp, bottom = 10.dp)
@@ -30,7 +31,7 @@ fun OemPackagesSection(safeToSuspendList: List<String>) {
         ) {
             Column(modifier = Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
                 Text(
-                    "Vivo OEM bloatware & background pollers targeted:",
+                    tr("Vivo OEM bloatware & background pollers targeted:"),
                     color = Color.White.copy(0.9f),
                     fontSize = 12.sp,
                     fontWeight = FontWeight.Medium

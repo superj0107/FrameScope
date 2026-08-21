@@ -1,5 +1,7 @@
 package com.framescope.app.ui.components
 
+import com.framescope.app.i18n.tr
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
@@ -116,7 +118,7 @@ fun OverlayPreviewContent(
                     }
                 }
                 if (activeList.isEmpty()) {
-                    Text("No modules", color = Color.Gray, fontFamily = fontFamily, fontSize = (12 * textScale).sp)
+                    Text(tr("No modules"), color = Color.Gray, fontFamily = fontFamily, fontSize = (12 * textScale).sp)
                 }
             }
         }

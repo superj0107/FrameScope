@@ -40,6 +40,7 @@ import com.framescope.app.metrics.DEFAULT_METRIC_MODULE_ORDER
 import com.framescope.app.metrics.MetricModuleId
 import com.framescope.app.metrics.resolveMetricModuleOrder
 import com.framescope.app.repository.SettingsRepository
+import com.framescope.app.i18n.tr
 import com.framescope.app.ui.components.ReorderableList
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -117,9 +118,9 @@ fun OverlayCustomizationScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 IconButton(onClick = onNavigateBack) {
-                    Icon(imageVector = Icons.Default.ArrowBackIosNew, contentDescription = "Back", tint = Color.White)
+                    Icon(imageVector = Icons.Default.ArrowBackIosNew, contentDescription = tr("Back"), tint = Color.White)
                 }
-                Text("Overlay Config", style = MaterialTheme.typography.titleMedium, color = Color.White)
+                Text(tr("Overlay Config"), style = MaterialTheme.typography.titleMedium, color = Color.White)
             }
 
             ModeSelector(
@@ -147,9 +148,9 @@ fun OverlayCustomizationScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Column(modifier = Modifier.weight(1f)) {
-                    Text("Active Modules", style = MaterialTheme.typography.titleMedium, color = Color.White)
+                        Text(tr("Active Modules"), style = MaterialTheme.typography.titleMedium, color = Color.White)
                     Text(
-                        "Drag to reorder. Toggle to show in overlay.",
+                        tr("Drag to reorder. Toggle to show in overlay."),
                         style = MaterialTheme.typography.bodySmall,
                         color = Color.Gray
                     )
@@ -160,10 +161,10 @@ fun OverlayCustomizationScreen(
                         modules = DEFAULT_METRIC_MODULE_ORDER.map { id ->
                             ModuleRowState(id = id, enabled = enabledById[id] ?: false)
                         }
-                        Toast.makeText(context, "Order reset to default", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, com.framescope.app.i18n.trStatic("Order reset to default"), Toast.LENGTH_SHORT).show()
                     }
                 ) {
-                    Icon(Icons.Default.RestartAlt, contentDescription = "Reset to default order", tint = Color.Gray)
+                    Icon(Icons.Default.RestartAlt, contentDescription = tr("Reset to default order"), tint = Color.Gray)
                 }
             }
             Spacer(modifier = Modifier.height(16.dp))
@@ -203,7 +204,7 @@ fun OverlayCustomizationScreen(
                 onClick = {
                     if (hasChanges) {
                         viewModel.saveSettings(selectedMode, modules)
-                        Toast.makeText(context, "Overlay configuration saved!", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, com.framescope.app.i18n.trStatic("Overlay configuration saved!"), Toast.LENGTH_SHORT).show()
                     }
                 },
                 enabled = hasChanges,
@@ -216,9 +217,8 @@ fun OverlayCustomizationScreen(
                 shape = RoundedCornerShape(12.dp),
                 modifier = Modifier.fillMaxWidth().height(56.dp)
             ) {
-                Text(if (hasChanges) "Apply Changes" else "Applied", fontWeight = FontWeight.Bold)
+                Text(tr(if (hasChanges) "Apply Changes" else "Applied"), fontWeight = FontWeight.Bold)
             }
         }
     }
 }
-

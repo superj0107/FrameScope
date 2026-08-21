@@ -1,5 +1,7 @@
 package com.framescope.app.ui.screens.performance.sections
 
+import com.framescope.app.i18n.tr
+
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -46,12 +48,12 @@ fun GameLauncherSection(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                "GAME LAUNCHER",
+                tr("GAME LAUNCHER"),
                 style = MaterialTheme.typography.labelSmall,
                 color = Color.Gray
             )
             Text(
-                "${launcherGames.size} added",
+                "${launcherGames.size} ${tr("added")}",
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.primary
             )
@@ -69,7 +71,7 @@ fun GameLauncherSection(
                     .border(1.dp, Color.White.copy(0.04f), RoundedCornerShape(16.dp)),
                 contentAlignment = Alignment.Center
             ) {
-                Text("No games added to launcher", color = Color.Gray, fontSize = 13.sp)
+                Text(tr("No games added to launcher"), color = Color.Gray, fontSize = 13.sp)
             }
         } else {
             val userAppsMap = remember(userApps) { userApps.associateBy { it.packageName } }
@@ -90,7 +92,7 @@ fun GameLauncherSection(
                         .border(1.dp, Color.White.copy(0.04f), RoundedCornerShape(16.dp)),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text("No games added to launcher", color = Color.Gray, fontSize = 13.sp)
+                    Text(tr("No games added to launcher"), color = Color.Gray, fontSize = 13.sp)
                 }
             } else {
                 LazyRow(
@@ -175,7 +177,7 @@ fun GameLauncherSection(
         ) {
             Icon(Icons.Default.Add, null, modifier = Modifier.size(20.dp))
             Spacer(modifier = Modifier.width(8.dp))
-            Text("ADD GAME", fontWeight = FontWeight.Bold)
+            Text(tr("ADD GAME"), fontWeight = FontWeight.Bold)
         }
 
         Spacer(modifier = Modifier.height(32.dp))

@@ -13,6 +13,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.framescope.app.gaming.AppInfo
 import com.framescope.app.ui.screens.performance.components.AppWhitelistRow
+import com.framescope.app.i18n.tr
 
 fun LazyListScope.GoogleAppsSection(
     googleApps: List<AppInfo>,
@@ -29,21 +30,20 @@ fun LazyListScope.GoogleAppsSection(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    "GOOGLE APPS",
+                    tr("GOOGLE APPS"),
                     style = MaterialTheme.typography.labelSmall,
                     color = Color.Gray,
                     modifier = Modifier.padding(start = 4.dp)
                 )
                 Text(
-                    "${googleApps.count { whitelist.contains(it.packageName) }} protected",
+                    "${googleApps.count { whitelist.contains(it.packageName) }} ${tr("protected")}",
                     style = MaterialTheme.typography.labelSmall,
                     color = Color(0xFF4285F4)
                 )
             }
             Spacer(modifier = Modifier.height(6.dp))
             Text(
-                "Google apps that will be suspended during Gaming Mode. " +
-                    "Toggle ON to keep an app running.",
+                tr("Google apps that will be suspended during Gaming Mode. Toggle ON to keep an app running."),
                 color = Color.Gray,
                 fontSize = 12.sp,
                 modifier = Modifier.padding(start = 4.dp, bottom = 10.dp)

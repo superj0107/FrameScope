@@ -12,6 +12,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.framescope.app.ui.components.WovenNetBackground
+import com.framescope.app.i18n.tr
 
 @Composable
 fun FixedPerformanceModeCard(
@@ -37,14 +38,14 @@ fun FixedPerformanceModeCard(
             ) {
                 Column(modifier = Modifier.weight(1f).padding(end = 12.dp)) {
                     Text(
-                        text = "Force Fixed Performance Mode",
+                        text = tr("Force Fixed Performance Mode"),
                         style = MaterialTheme.typography.titleSmall,
                         color = Color.White,
                         fontWeight = FontWeight.Bold
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        text = "Executes 'cmd power set-fixed-performance-mode'. Pins CPU to max clock speed. Turn OFF if experiencing heat throttling.",
+                        text = tr("Executes 'cmd power set-fixed-performance-mode'. Pins CPU to max clock speed. Turn OFF if experiencing heat throttling."),
                         style = MaterialTheme.typography.bodySmall,
                         color = Color.Gray,
                         fontSize = 11.sp,

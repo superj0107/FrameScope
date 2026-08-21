@@ -1,5 +1,7 @@
 package com.framescope.app.ui.components
 
+import com.framescope.app.i18n.tr
+
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -114,7 +116,7 @@ fun SignatureMismatchDialog(
                             contentColor = Color.Black
                         )
                     ) {
-                        Text("Uninstall Debug & Save APK", fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                        Text(tr("Uninstall Debug & Save APK"), fontWeight = FontWeight.Bold, fontSize = 13.sp)
                     }
 
                     OutlinedButton(
@@ -125,7 +127,7 @@ fun SignatureMismatchDialog(
                         shape = RoundedCornerShape(14.dp),
                         border = BorderStroke(1.dp, Color.White.copy(0.12f))
                     ) {
-                        Text("Cancel", color = Color.White.copy(0.8f), fontSize = 13.sp)
+                        Text(tr("Cancel"), color = Color.White.copy(0.8f), fontSize = 13.sp)
                     }
                 }
             }

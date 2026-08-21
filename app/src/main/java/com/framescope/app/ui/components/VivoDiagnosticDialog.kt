@@ -1,5 +1,7 @@
 package com.framescope.app.ui.components
 
+import com.framescope.app.i18n.tr
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
@@ -104,7 +106,7 @@ fun VivoDiagnosticDialog(
                         modifier = Modifier.weight(1f),
                         shape = RoundedCornerShape(12.dp)
                     ) {
-                        Text("Cancel", color = Color.Gray)
+                        Text(tr("Cancel"), color = Color.Gray)
                     }
 
                     Button(
@@ -118,7 +120,7 @@ fun VivoDiagnosticDialog(
                             containerColor = MaterialTheme.colorScheme.primary
                         )
                     ) {
-                        Text("Enable", color = Color.White, fontWeight = FontWeight.Bold)
+                        Text(tr("Enable"), color = Color.White, fontWeight = FontWeight.Bold)
                     }
                 }
             }
