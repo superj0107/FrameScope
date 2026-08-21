@@ -1,5 +1,7 @@
 # FrameScope
 
+[中文说明](README.zh-CN.md) · English
+
 ![FrameScope Banner](docs/assets/banner.png)
 
 > Rootless Android performance overlay featuring live FPS metering, thermal diagnostics, and privileged gaming optimization via Shizuku.
