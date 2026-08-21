@@ -1,6 +1,7 @@
 package com.framescope.app.shizuku
 
 import android.content.pm.PackageManager
+import com.framescope.app.bridge.FrameScopeBridgeClient
 import com.framescope.app.BuildConfig
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -12,6 +13,10 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.withTimeoutOrNull
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.delay
 import android.content.ComponentName
 import android.content.ServiceConnection
 import android.os.IBinder
@@ -20,7 +25,9 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class ShizukuManager @Inject constructor() {
+class ShizukuManager @Inject constructor(
+    private val bridgeClient: FrameScopeBridgeClient
+) {
 
     private val _isShizukuAvailable = MutableStateFlow(false)
     val isShizukuAvailable: StateFlow<Boolean> = _isShizukuAvailable.asStateFlow()
@@ -38,56 +45,93 @@ class ShizukuManager @Inject constructor() {
     private val _hasPermission = MutableStateFlow(false)
     val hasPermission: StateFlow<Boolean> = _hasPermission.asStateFlow()
 
+    /** True when the embedded shell-UID bridge is reachable. */
+    private val _isBridgeAvailable = MutableStateFlow(false)
+    val isBridgeAvailable: StateFlow<Boolean> = _isBridgeAvailable.asStateFlow()
+
+    private val stateScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    @Volatile private var shizukuBinderAvailable = false
+    @Volatile private var shizukuPermissionGranted = false
+    @Volatile private var initialized = false
+
     private val binderReceivedListener = Shizuku.OnBinderReceivedListener {
-        _isShizukuAvailable.value = true
+        shizukuBinderAvailable = true
         checkPermission()
+        publishCombinedState()
     }
 
     private val binderDeadListener = Shizuku.OnBinderDeadListener {
-        _isShizukuAvailable.value = false
-        _hasPermission.value = false
+        shizukuBinderAvailable = false
+        shizukuPermissionGranted = false
         disconnectUserService()
+        publishCombinedState()
     }
 
     private val requestPermissionResultListener = Shizuku.OnRequestPermissionResultListener { requestCode, grantResult ->
         if (requestCode == REQUEST_CODE_PERMISSION) {
-            _hasPermission.value = grantResult == PackageManager.PERMISSION_GRANTED
+            shizukuPermissionGranted = grantResult == PackageManager.PERMISSION_GRANTED
+            publishCombinedState()
         }
     }
 
     fun init() {
+        if (initialized) return
+        initialized = true
         try {
             Shizuku.addBinderReceivedListenerSticky(binderReceivedListener)
             Shizuku.addBinderDeadListener(binderDeadListener)
             Shizuku.addRequestPermissionResultListener(requestPermissionResultListener)
             
-            _isShizukuAvailable.value = Shizuku.pingBinder()
+            shizukuBinderAvailable = Shizuku.pingBinder()
             firstBindNotBeforeMs = SystemClock.elapsedRealtime() + INITIAL_BIND_DELAY_MS
-            if (_isShizukuAvailable.value) {
+            if (shizukuBinderAvailable) {
                 checkPermission()
+            }
+            refreshState()
+            stateScope.launch {
+                while (true) {
+                    val bridgeReady = bridgeClient.isAvailable()
+                    _isBridgeAvailable.value = bridgeReady
+                    if (!shizukuBinderAvailable) {
+                        shizukuBinderAvailable = runCatching { Shizuku.pingBinder() }.getOrDefault(false)
+                        if (shizukuBinderAvailable) checkPermission()
+                    }
+                    publishCombinedState()
+                    delay(BRIDGE_POLL_INTERVAL_MS)
+                }
             }
         } catch (e: Exception) {
             com.framescope.app.utils.FrameScopeLog.e("Shizuku init error", e)
-            _isShizukuAvailable.value = false
+            shizukuBinderAvailable = false
+            shizukuPermissionGranted = false
+            publishCombinedState()
         }
     }
     
     fun refreshState() {
         try {
-            _isShizukuAvailable.value = Shizuku.pingBinder()
-            if (_isShizukuAvailable.value) {
+            shizukuBinderAvailable = Shizuku.pingBinder()
+            if (shizukuBinderAvailable) {
                 checkPermission()
             } else {
-                _hasPermission.value = false
+                shizukuPermissionGranted = false
             }
+            stateScope.launch {
+                _isBridgeAvailable.value = bridgeClient.isAvailable()
+                publishCombinedState()
+            }
+            publishCombinedState()
         } catch (e: Exception) {
             com.framescope.app.utils.FrameScopeLog.e("Shizuku refreshState error", e)
-            _isShizukuAvailable.value = false
-            _hasPermission.value = false
+            shizukuBinderAvailable = false
+            shizukuPermissionGranted = false
+            _isBridgeAvailable.value = false
+            publishCombinedState()
         }
     }
 
     fun destroy() {
+        stateScope.coroutineContext[kotlinx.coroutines.Job]?.cancel()
         disconnectUserService()
         Shizuku.removeBinderReceivedListener(binderReceivedListener)
         Shizuku.removeBinderDeadListener(binderDeadListener)
@@ -96,13 +140,17 @@ class ShizukuManager @Inject constructor() {
 
     fun checkPermission() {
         if (Shizuku.isPreV11() || Shizuku.getVersion() < 11) {
-            _hasPermission.value = false
+            shizukuPermissionGranted = false
+            publishCombinedState()
             return
         }
-        _hasPermission.value = Shizuku.checkSelfPermission() == PackageManager.PERMISSION_GRANTED
+        shizukuPermissionGranted = Shizuku.checkSelfPermission() == PackageManager.PERMISSION_GRANTED
+        publishCombinedState()
     }
 
     fun requestPermission() {
+        // The embedded bridge is already shell-authorized; only the optional
+        // Shizuku fallback needs an explicit per-app permission request.
         if (Shizuku.isPreV11() || Shizuku.getVersion() < 11) {
             return
         }
@@ -110,6 +158,18 @@ class ShizukuManager @Inject constructor() {
             Shizuku.requestPermission(REQUEST_CODE_PERMISSION)
         }
     }
+
+    private fun publishCombinedState() {
+        val bridgeReady = _isBridgeAvailable.value
+        _isShizukuAvailable.value = shizukuBinderAvailable || bridgeReady
+        _hasPermission.value = shizukuPermissionGranted || bridgeReady
+    }
+
+    private fun useShizuku(): Boolean = shizukuBinderAvailable && shizukuPermissionGranted
+
+    private fun useBridge(): Boolean = _isBridgeAvailable.value
+
+    private fun hasPrivilegedBackend(): Boolean = useShizuku() || useBridge()
 
     private suspend fun awaitCommandRunner(): ICommandRunner? {
         commandRunner?.let { return it }
@@ -138,10 +198,13 @@ class ShizukuManager @Inject constructor() {
     }
 
     suspend fun executeCommand(command: String): String {
-        if (!_isShizukuAvailable.value || !_hasPermission.value) {
-            com.framescope.app.utils.FrameScopeLog.w("executeCommand called when Shizuku is unavailable or permitted")
+        if (!hasPrivilegedBackend()) {
+            com.framescope.app.utils.FrameScopeLog.w("executeCommand called without a privileged backend")
             return ""
         }
+        // Prefer the embedded Bridge whenever it is reachable. Shizuku is
+        // only a fallback for devices where the Bridge was not started.
+        if (useBridge()) return bridgeClient.executeCommand(command)
         return commandMutex.withLock {
             val runner = awaitCommandRunner() ?: run {
                 com.framescope.app.utils.FrameScopeLog.w("CommandRunner unavailable after bind attempt in executeCommand")
@@ -159,9 +222,12 @@ class ShizukuManager @Inject constructor() {
     }
 
     suspend fun executeCommandWithExitCode(command: String): Int {
-        if (!_isShizukuAvailable.value || !_hasPermission.value) {
-            com.framescope.app.utils.FrameScopeLog.w("executeCommandWithExitCode called when Shizuku is unavailable or permission is not granted")
+        if (!hasPrivilegedBackend()) {
+            com.framescope.app.utils.FrameScopeLog.w("executeCommandWithExitCode called without a privileged backend")
             return COMMAND_EXECUTION_FAILED
+        }
+        if (useBridge()) {
+            return bridgeClient.executeCommandWithResult(command)?.exitCode ?: COMMAND_EXECUTION_FAILED
         }
         return commandMutex.withLock {
             val runner = awaitCommandRunner() ?: run {
@@ -180,10 +246,11 @@ class ShizukuManager @Inject constructor() {
     }
 
     suspend fun executeCommandWithResult(command: String): CommandResult? {
-        if (!_isShizukuAvailable.value || !_hasPermission.value) {
-            com.framescope.app.utils.FrameScopeLog.w("executeCommandWithResult called when Shizuku is unavailable or permission is not granted")
+        if (!hasPrivilegedBackend()) {
+            com.framescope.app.utils.FrameScopeLog.w("executeCommandWithResult called without a privileged backend")
             return null
         }
+        if (useBridge()) return bridgeClient.executeCommandWithResult(command)
         return commandMutex.withLock {
             val runner = awaitCommandRunner() ?: run {
                 com.framescope.app.utils.FrameScopeLog.w("CommandRunner unavailable after bind attempt in executeCommandWithResult")
@@ -201,10 +268,11 @@ class ShizukuManager @Inject constructor() {
     }
 
     suspend fun readProcStat(): String {
-        if (!_isShizukuAvailable.value || !_hasPermission.value) {
-            com.framescope.app.utils.FrameScopeLog.w("readProcStat called when Shizuku is unavailable")
+        if (!hasPrivilegedBackend()) {
+            com.framescope.app.utils.FrameScopeLog.w("readProcStat called without a privileged backend")
             return ""
         }
+        if (!useShizuku() && useBridge()) return bridgeClient.readProcStat()
         return commandMutex.withLock {
             val runner = awaitCommandRunner() ?: run {
                 com.framescope.app.utils.FrameScopeLog.w("CommandRunner unavailable after bind attempt in readProcStat")
@@ -222,10 +290,11 @@ class ShizukuManager @Inject constructor() {
     }
 
     suspend fun getThermalTemperatures(): String {
-        if (!_isShizukuAvailable.value || !_hasPermission.value) {
-            com.framescope.app.utils.FrameScopeLog.w("getThermalTemperatures called when Shizuku is unavailable")
+        if (!hasPrivilegedBackend()) {
+            com.framescope.app.utils.FrameScopeLog.w("getThermalTemperatures called without a privileged backend")
             return ""
         }
+        if (!useShizuku() && useBridge()) return bridgeClient.getThermalTemperatures()
         return commandMutex.withLock {
             val runner = awaitCommandRunner() ?: run {
                 com.framescope.app.utils.FrameScopeLog.w("CommandRunner unavailable after bind attempt in getThermalTemperatures")
@@ -243,7 +312,7 @@ class ShizukuManager @Inject constructor() {
     }
 
     suspend fun getSuspendedPackages(packageNames: List<String>): Set<String> {
-        if (!_isShizukuAvailable.value || !_hasPermission.value || packageNames.isEmpty()) {
+        if (!hasPrivilegedBackend() || packageNames.isEmpty()) {
             return emptySet()
         }
         return try {
@@ -266,9 +335,24 @@ class ShizukuManager @Inject constructor() {
     }
 
     suspend fun suspendPackages(packageNames: List<String>, suspended: Boolean): SuspendResult? {
-        if (!_isShizukuAvailable.value || !_hasPermission.value || packageNames.isEmpty()) {
-            com.framescope.app.utils.FrameScopeLog.w("suspendPackages skipped: Shizuku unavailable/unpermitted or package list empty")
+        if (!hasPrivilegedBackend() || packageNames.isEmpty()) {
+            com.framescope.app.utils.FrameScopeLog.w("suspendPackages skipped: no privileged backend or package list empty")
             return null
+        }
+        if (!useShizuku() && useBridge()) {
+            return commandMutex.withLock {
+                val failed = mutableListOf<String>()
+                val action = if (suspended) "suspend" else "unsuspend"
+                var successCount = 0
+                for (pkg in packageNames) {
+                    val result = bridgeClient.executeCommandWithResult("cmd package $action --user 0 $pkg")
+                    if (result?.exitCode == 0) successCount++ else failed += pkg
+                }
+                SuspendResult().apply {
+                    failedPackages = failed.toTypedArray()
+                    this.successCount = successCount
+                }
+            }
         }
         return commandMutex.withLock {
             val runner = awaitCommandRunner() ?: run {
@@ -287,9 +371,26 @@ class ShizukuManager @Inject constructor() {
     }
 
     suspend fun setAppOpMode(packageNames: List<String>, opCode: Int, mode: Int): Int {
-        if (!_isShizukuAvailable.value || !_hasPermission.value || packageNames.isEmpty()) {
-            com.framescope.app.utils.FrameScopeLog.w("setAppOpMode skipped: Shizuku unavailable/unpermitted or package list empty")
+        if (!hasPrivilegedBackend() || packageNames.isEmpty()) {
+            com.framescope.app.utils.FrameScopeLog.w("setAppOpMode skipped: no privileged backend or package list empty")
             return 0
+        }
+        if (!useShizuku() && useBridge()) {
+            return commandMutex.withLock {
+                val modeName = when (mode) {
+                    0 -> "allow"
+                    1 -> "ignore"
+                    2 -> "deny"
+                    else -> "default"
+                }
+                var successCount = 0
+                for (pkg in packageNames) {
+                    if (bridgeClient.executeCommandWithResult("cmd appops set $pkg $opCode $modeName")?.exitCode == 0) {
+                        successCount++
+                    }
+                }
+                successCount
+            }
         }
         return commandMutex.withLock {
             val runner = awaitCommandRunner() ?: run {
@@ -316,8 +417,9 @@ class ShizukuManager @Inject constructor() {
         // pingBinder() is the only reliable way to catch this case before we attempt binding.
         if (!runCatching { Shizuku.pingBinder() }.getOrDefault(false)) {
             com.framescope.app.utils.FrameScopeLog.w("Shizuku daemon dead (OS-level kill detected via pingBinder). Halting reconnect.")
-            _isShizukuAvailable.value = false
-            _hasPermission.value = false
+            shizukuBinderAvailable = false
+            shizukuPermissionGranted = false
+            publishCombinedState()
             commandRunner = null
             isConnecting = false
             pendingConnection?.complete(null)
@@ -358,7 +460,9 @@ class ShizukuManager @Inject constructor() {
         } catch (e: Exception) {
             com.framescope.app.utils.FrameScopeLog.e("bindUserService failed", e)
             isConnecting = false
-            _isShizukuAvailable.value = false
+            shizukuBinderAvailable = false
+            shizukuPermissionGranted = false
+            publishCombinedState()
             pendingConnection?.complete(null)
             pendingConnection = null
         }
@@ -398,6 +502,7 @@ class ShizukuManager @Inject constructor() {
         private const val INITIAL_BIND_DELAY_MS = 2000L
         private const val MAX_BIND_RETRIES = 3
         private const val BIND_RETRY_DELAY_MS = 500L
+        private const val BRIDGE_POLL_INTERVAL_MS = 1500L
         private const val USER_SERVICE_TAG = "framescope-command-runner"
         private const val COMMAND_EXECUTION_FAILED = -1
     }

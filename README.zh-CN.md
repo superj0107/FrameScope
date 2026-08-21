@@ -4,7 +4,7 @@
 
 ![FrameScope Banner](docs/assets/banner.png)
 
-> FrameScope 是一款无需 Root 的 Android 性能悬浮窗工具，支持实时帧率（FPS）监测、温度诊断，以及通过 Shizuku 提供的高级游戏优化功能。
+> FrameScope 是一款无需 Root 的 Android 性能悬浮窗工具，支持实时帧率（FPS）监测、温度诊断，以及通过内置 FrameScope 桥接服务提供的高级游戏优化功能。
 
 > **项目说明：** FrameScope 基于采用 MIT 许可证的 [FrameX-Android](https://github.com/MaheshSharan/FrameX-Android) 开发。本项目重新命名了应用，并加入了兼容 Android 8.1 的前台图层 FPS 读取功能，底层使用 `SurfaceFlinger --latency` 获取帧时间戳。
 
@@ -65,62 +65,54 @@ FrameScope 可在任意应用或全屏游戏上方显示可自定义、低开销
 
 - Android 8.0（API 26）或更高版本
 - App 内支持 English 和简体中文；首次启动会跟随系统语言，也可以在 **关于与法律信息 → 语言** 中手动切换
-- 基础监测只需要“显示在其他应用上层”权限，不安装 Shizuku 也可以打开 App、查看 RAM/CPU/存储/Ping 等信息
-- 外部应用的真实 FPS 读取、游戏模式和深度优化需要 [Shizuku](https://github.com/RikkaApps/Shizuku)
-- Android 11 及以上可通过无线调试激活 Shizuku，也可以使用 USB ADB 激活
-- Root 设备可配合 Sui 模块使用
+- 基础监测只需要“显示在其他应用上层”权限，不启动桥接服务也可以打开 App、查看 RAM/CPU/存储/Ping 等信息
+- 外部应用的真实 FPS 读取、游戏模式和深度优化需要内置 FrameScope 桥接服务，也兼容 [Shizuku](https://github.com/RikkaApps/Shizuku)
+- 桥接服务首次通过 USB ADB 启动，启动后不需要电脑一直连接
+- Root 设备也可以配合 Sui 模块使用
 
 ## 基础监测与深度优化
 
 FrameScope 将功能分为两部分：
 
-- **基础监测：** 不依赖 Shizuku，可查看 CPU、RAM、存储、Ping、基础温度状态，并打开悬浮窗。
-- **深度优化：** 需要 Shizuku 权限，用于读取其他应用的 SurfaceFlinger FPS、游戏模式、后台应用挂起、刷新率锁定、固定性能模式和 Vivo 硬件优化。
+- **基础监测：** 不依赖高权限后端，可查看 CPU、RAM、存储、Ping、基础温度状态，并打开悬浮窗。
+- **深度优化：** 默认使用 FrameScope 桥接服务（也兼容 Shizuku），用于读取其他应用的 SurfaceFlinger FPS、游戏模式、后台应用挂起、刷新率锁定、固定性能模式和 Vivo 硬件优化。
 
-没有 Shizuku 时，App 仍然可以正常打开；只是详细多传感器温度、外部应用真实 FPS 和高级系统修改功能会显示为不可用。
+没有桥接服务时，App 仍然可以正常打开；只是详细多传感器温度、外部应用真实 FPS 和高级系统修改功能会显示为不可用。
 
-## Shizuku 安装与启动教程
+## FrameScope 桥接服务教程（推荐）
 
-下面以已经连接 ADB 的手表为例。首次配置需要电脑，完成后 FrameScope 在 Shizuku 运行期间不需要一直连接电脑。
+桥接服务已经内置在 FrameScope APK 中，不是第二个 App，也不需要安装 Shizuku。由于 Android 不允许普通 App 把自身 UID 提升为 `shell`，所以必须首次通过 ADB 启动一次。
 
-### 1. 安装 Shizuku
-
-从 [Shizuku 官方 Releases](https://github.com/RikkaApps/Shizuku/releases) 下载最新 APK，然后在电脑 PowerShell 中执行：
+### 1. 安装 FrameScope
 
 ```powershell
-adb devices
-adb -s <设备序列号> install -r <Shizuku APK 文件路径>
+adb -s <设备序列号> install -r <FrameScope APK 文件路径>
 ```
 
-如果 `adb devices` 看不到设备，请先打开手表的开发者选项和 USB 调试。
+### 2. 启动内置桥接服务
 
-### 2. 启动 Shizuku 服务
+最简单的方法：直接双击仓库根目录的 **`启动FrameScope桥接服务.bat`**。它会自动找到唯一已连接的手表；如果连接了多个设备，会让你输入手表序列号。
 
-安装完成后执行：
+停止服务时，双击 **`停止FrameScope桥接服务.bat`** 即可。
+
+如果 Windows 阻止双击脚本，也可以在仓库根目录打开 PowerShell 手动运行：
+
+在仓库根目录打开 PowerShell：
 
 ```powershell
-adb -s <设备序列号> shell sh /sdcard/Android/data/moe.shizuku.privileged.api/start.sh
+Set-ExecutionPolicy -Scope Process Bypass
+.\scripts\start-framescope-bridge.ps1 -Serial <设备序列号>
 ```
 
-也可以先打开 Shizuku，再按照 Shizuku 页面中的“通过 ADB 启动”提示执行命令。
+也可以在 App 的 **权限设置 → 复制 ADB 命令** 中复制启动命令。打开 FrameScope，确认 **FrameScope 桥接服务** 显示“已运行（Shell 权限）”。此时可以断开电脑，App 会通过共享存储中的本地请求通道继续读取数据。
 
-### 3. 授予 FrameScope 权限
+### 3. 手表重启后
 
-1. 打开 Shizuku，确认状态显示“正在运行”。
-2. 打开 FrameScope → **权限设置**。
-3. 点击 Shizuku 权限旁的授权按钮，并在弹窗中允许。
-4. 返回仪表盘，即可使用外部应用 FPS、游戏模式和深度优化。
+重新运行一次启动脚本即可，不需要重新安装 FrameScope，也不需要安装 Shizuku。启动器位于仓库根目录，底层 PowerShell 脚本位于 [`scripts/`](scripts/)。更多说明见 [scripts/README-Bridge.md](scripts/README-Bridge.md)。这些文件都会随项目一起发布到 GitHub。
 
-### 4. 手表重启后的处理
+### 可选 Shizuku 后备方案
 
-通过 ADB 启动的 Shizuku 通常不会跨重启保留。手表重启后，再执行第 2 步即可；FrameScope 本身不需要重新安装。
-
-### 常见问题
-
-- **点击“打开 Shizuku”没有反应：** 通常是 Shizuku 尚未安装。FrameScope 不能把 shell 权限服务直接塞进普通 APK。
-- **提示找不到 `start.sh`：** 先打开一次 Shizuku，再重新执行启动命令；不同 Shizuku 版本也可能在 App 内显示专用命令。
-- **Shizuku 已运行但 FrameScope 未连接：** 打开 Shizuku 的已授权应用列表，确认已允许 FrameScope，然后重启 FrameScope。
-- **Android 11 及以上无电脑启动：** 在开发者选项中开启无线调试并完成配对，再在 Shizuku 中选择“通过无线调试启动”。
+已经安装 Shizuku 的用户仍然可以正常使用。启动 Shizuku 并授权 FrameScope 后，如果内置桥接服务不可用，FrameScope 会自动使用 Shizuku。
 
 ## 截图
 
@@ -143,7 +135,7 @@ adb -s <设备序列号> shell sh /sdcard/Android/data/moe.shizuku.privileged.ap
 
 ## FPS 测量原理
 
-FrameScope 通过 Shizuku 提供的特权 IPC 调用，在 Android 系统合成器层直接读取 `SurfaceFlinger --latency` 数据来测量帧率。对于没有提供新版 `--timestats` 字段的 Android 8.1 设备，FrameScope 会读取前台图层的已显示帧时间戳。由于数据直接来自显示管线，不会增加被测应用渲染线程或 GPU 管线的额外负载。
+FrameScope 通过 FrameScope Bridge 或 Shizuku 提供的特权调用读取 Android 渲染管线数据。它会在每个 Android 版本和每台设备上运行时探测 `SurfaceFlinger --latency`；如果 ROM 没有提供有效呈现时间戳（例如实测固件返回 `0 0 0`），就自动切换到 `dumpsys gfxinfo <前台应用包名> framestats`。备用方案会读取设备自己输出的 `FrameCompleted` 表头来确定列位置，并统计最近 1 秒内真正完成的帧数。静止页面没有新渲染帧时显示 **0 FPS** 是正常的；滑动页面、播放视频或运行动画后再观察。数值不会被强制限制为 60。
 
 ![FPS 测量架构图](docs/assets/fps_measurement_architecture.svg)
 
@@ -165,7 +157,7 @@ cd FrameScope-Android
 - [GitHub Release v0.1.0](https://github.com/superj0107/FrameScope/releases/tag/v0.1.0)
 - 包名：`com.framescope.app`
 - 最低 Android 版本：Android 8.0（API 26）
-- 基础悬浮窗只需要“显示在其他应用上层”权限；读取外部应用真实 FPS 需要 Shizuku
+- 基础悬浮窗只需要“显示在其他应用上层”权限；读取外部应用真实 FPS 需要 FrameScope 桥接服务或 Shizuku
 
 ## 权限说明
 
@@ -184,7 +176,7 @@ cd FrameScope-Android
 | 前台服务（Special Use） | 确保 Android 14 及以上的游戏模式持续运行 |
 | 发送通知 | 显示会话状态及快捷控制按钮 |
 | `QUERY_ALL_PACKAGES` | 加载已安装的游戏和应用 |
-| Shizuku 特权 API | 高精度 FPS 测量、温度诊断、ART 内存整理以及 OriginOS 电竞硬件引擎 |
+| FrameScope 桥接服务 / Shizuku | 高精度 FPS 测量、温度诊断、ART 内存整理以及 OriginOS 电竞硬件引擎 |
 
 ## 安全与隐私
 
@@ -202,7 +194,7 @@ cd FrameScope-Android
 
 ## 致谢
 
-- [Shizuku](https://github.com/RikkaApps/Shizuku)（作者：[RikkaW](https://github.com/RikkaApps)）：提供 Rootless 系统访问能力的特权 API 桥接工具。没有 Shizuku，FrameScope 无法实现这些功能。
+- [Shizuku](https://github.com/RikkaApps/Shizuku)（作者：[RikkaW](https://github.com/RikkaApps)）：作为可选的高权限后备方案。
 
 ## 许可证
 
