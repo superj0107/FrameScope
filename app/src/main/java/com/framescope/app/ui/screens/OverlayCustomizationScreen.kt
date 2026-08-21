@@ -3,6 +3,7 @@ package com.framescope.app.ui.screens
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -111,10 +112,23 @@ fun OverlayCustomizationScreen(
         modules.map { it.id } != savedOrderIds ||
         modules.filter { it.enabled }.map { it.id.storageKey }.toSet() != savedModules
 
-    Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
+    BoxWithConstraints(
+        modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)
+    ) {
+        // The watch is a 480x480 square display. Keep the phone layout spacious,
+        // but reserve a real viewport for the module list on short screens so it
+        // is not hidden behind the apply bar.
+        val compactLayout = maxHeight < 600.dp
+        val horizontalPadding = if (compactLayout) 12.dp else 24.dp
+        val headerPadding = if (compactLayout) 8.dp else 16.dp
+        val previewHeight = if (compactLayout) 120.dp else 180.dp
+        val sectionGap = if (compactLayout) 12.dp else 32.dp
+        val smallGap = if (compactLayout) 8.dp else 16.dp
+        val bottomBarPadding = if (compactLayout) 8.dp else 24.dp
+
         Column(modifier = Modifier.fillMaxSize()) {
             Row(
-                modifier = Modifier.fillMaxWidth().padding(16.dp),
+                modifier = Modifier.fillMaxWidth().padding(headerPadding),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 IconButton(onClick = onNavigateBack) {
@@ -128,9 +142,9 @@ fun OverlayCustomizationScreen(
                 selectedMode = selectedMode,
                 accentColor = accentColor,
                 onModeSelected = { selectedMode = it },
-                modifier = Modifier.padding(horizontal = 24.dp)
+                modifier = Modifier.padding(horizontal = horizontalPadding)
             )
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(smallGap))
 
             OverlayPreviewCard(
                 modules = modules,
@@ -139,16 +153,17 @@ fun OverlayCustomizationScreen(
                 accentColor = accentColor,
                 fontFamily = fontFamily,
                 textScale = textScale,
-                modifier = Modifier.padding(horizontal = 24.dp)
+                previewHeight = previewHeight,
+                modifier = Modifier.padding(horizontal = horizontalPadding)
             )
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(sectionGap))
 
             Row(
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
+                modifier = Modifier.fillMaxWidth().padding(horizontal = horizontalPadding),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Column(modifier = Modifier.weight(1f)) {
-                        Text(tr("Active Modules"), style = MaterialTheme.typography.titleMedium, color = Color.White)
+                    Text(tr("Active Modules"), style = MaterialTheme.typography.titleMedium, color = Color.White)
                     Text(
                         tr("Drag to reorder. Toggle to show in overlay."),
                         style = MaterialTheme.typography.bodySmall,
@@ -167,7 +182,7 @@ fun OverlayCustomizationScreen(
                     Icon(Icons.Default.RestartAlt, contentDescription = tr("Reset to default order"), tint = Color.Gray)
                 }
             }
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(smallGap))
 
             ReorderableList(
                 items = modules,
@@ -178,8 +193,11 @@ fun OverlayCustomizationScreen(
                 onMove = { from, to ->
                     modules = modules.toMutableList().apply { add(to, removeAt(from)) }
                 },
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
-                contentPadding = PaddingValues(bottom = 100.dp)
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth()
+                    .padding(horizontal = horizontalPadding),
+                contentPadding = PaddingValues(bottom = smallGap)
             ) { module, dragHandleModifier, isDragging ->
                 ModuleRow(
                     module = module,
@@ -191,33 +209,32 @@ fun OverlayCustomizationScreen(
                     }
                 )
             }
-        }
-
-        Box(
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .fillMaxWidth()
-                .background(MaterialTheme.colorScheme.background.copy(0.95f))
-                .padding(24.dp)
-        ) {
-            Button(
-                onClick = {
-                    if (hasChanges) {
-                        viewModel.saveSettings(selectedMode, modules)
-                        Toast.makeText(context, com.framescope.app.i18n.trStatic("Overlay configuration saved!"), Toast.LENGTH_SHORT).show()
-                    }
-                },
-                enabled = hasChanges,
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = accentColor,
-                    contentColor = Color.White,
-                    disabledContainerColor = Color.DarkGray.copy(alpha = 0.5f),
-                    disabledContentColor = Color.Gray
-                ),
-                shape = RoundedCornerShape(12.dp),
-                modifier = Modifier.fillMaxWidth().height(56.dp)
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(MaterialTheme.colorScheme.background.copy(0.95f))
+                    .padding(bottomBarPadding)
+                    .padding(horizontal = horizontalPadding)
             ) {
-                Text(tr(if (hasChanges) "Apply Changes" else "Applied"), fontWeight = FontWeight.Bold)
+                Button(
+                    onClick = {
+                        if (hasChanges) {
+                            viewModel.saveSettings(selectedMode, modules)
+                            Toast.makeText(context, com.framescope.app.i18n.trStatic("Overlay configuration saved!"), Toast.LENGTH_SHORT).show()
+                        }
+                    },
+                    enabled = hasChanges,
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = accentColor,
+                        contentColor = Color.White,
+                        disabledContainerColor = Color.DarkGray.copy(alpha = 0.5f),
+                        disabledContentColor = Color.Gray
+                    ),
+                    shape = RoundedCornerShape(12.dp),
+                    modifier = Modifier.fillMaxWidth().height(if (compactLayout) 48.dp else 56.dp)
+                ) {
+                    Text(tr(if (hasChanges) "Apply Changes" else "Applied"), fontWeight = FontWeight.Bold)
+                }
             }
         }
     }

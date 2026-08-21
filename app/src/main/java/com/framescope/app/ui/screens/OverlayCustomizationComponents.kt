@@ -31,6 +31,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.framescope.app.i18n.tr
@@ -85,12 +86,13 @@ internal fun OverlayPreviewCard(
     accentColor: Color,
     fontFamily: FontFamily?,
     textScale: Float,
+    previewHeight: Dp = 180.dp,
     modifier: Modifier = Modifier
 ) {
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .height(180.dp)
+            .height(previewHeight)
             .clip(RoundedCornerShape(16.dp))
             .background(MaterialTheme.colorScheme.surface)
             .border(1.dp, Color.White.copy(0.05f), RoundedCornerShape(16.dp))
