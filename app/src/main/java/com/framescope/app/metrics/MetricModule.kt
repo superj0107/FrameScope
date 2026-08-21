@@ -107,11 +107,17 @@ fun metricValueFor(id: MetricModuleId, metricsState: MetricsState): String = whe
     )
     MetricModuleId.RAM_USAGE -> String.format("%.1f GB", metricsState.ramUsedGb)
     MetricModuleId.BATTERY_TEMPERATURE -> String.format("%.1f°C", metricsState.batteryTempC)
-    MetricModuleId.THERMAL_MONITOR -> String.format(
-        "%.0f°C %s",
-        metricsState.thermalCpuC,
-        thermalStatusShortLabel(metricsState.thermalStatus)
-    )
+    MetricModuleId.THERMAL_MONITOR -> if (
+        metricsState.thermalReadStatus != MetricReadStatus.Ok || !metricsState.hasThermalCpu
+    ) {
+        trStatic("Read unavailable")
+    } else {
+        String.format(
+            "%.0f°C %s",
+            metricsState.thermalCpuC,
+            thermalStatusShortLabel(metricsState.thermalStatus)
+        )
+    }
     MetricModuleId.NETWORK_SPEED -> {
         val totalKbps = metricsState.networkRxKbps + metricsState.networkTxKbps
         if (totalKbps > KBPS_PER_MBPS) {

@@ -380,6 +380,7 @@ private val ZH_TRANSLATIONS = mapOf(
     "Parse Failed" to "解析失败",
     "Not Supported" to "不支持",
     "Unavailable" to "不可用",
+    "Read unavailable" to "读不到",
     "Needs Shizuku" to "需要 Shizuku",
     "Monitoring Performance" to "正在监测性能",
     "Likely Thermal Pressure" to "可能是温度压力",
